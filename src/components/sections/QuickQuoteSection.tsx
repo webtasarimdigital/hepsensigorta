@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { submitLeadAction } from "@/app/actions/leadActions";
 import { SITE_CONFIG, getWhatsAppUrl } from "@/constants/siteConfig";
 
@@ -195,7 +196,7 @@ export function QuickQuoteSection({
                   className="w-full sm:w-auto"
                 >
                   <Button variant="whatsapp" size="lg" className="w-full sm:w-auto gap-2">
-                    <MessageCircle className="w-5 h-5 fill-white text-[#25D366]" />
+                    <WhatsAppIcon className="w-5 h-5 fill-white" />
                     <span>WhatsApp&apos;tan Hemen Yazın</span>
                   </Button>
                 </a>

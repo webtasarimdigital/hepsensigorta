@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
-import { MessageCircle, X } from "lucide-react";
+import { X } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { SITE_CONFIG, getWhatsAppUrl } from "@/constants/siteConfig";
 
 export function FloatingWhatsApp() {
@@ -59,7 +60,7 @@ export function FloatingWhatsApp() {
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-300"></span>
         </span>
-        <MessageCircle className="w-7 h-7 fill-white text-[#25D366]" />
+        <WhatsAppIcon className="w-8 h-8 fill-white" />
       </a>
     </aside>
   );

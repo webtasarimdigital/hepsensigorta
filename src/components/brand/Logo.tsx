@@ -7,7 +7,7 @@ interface LogoProps {
   variant?: "dark" | "light";
   withSlogan?: boolean;
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 export function Logo({
@@ -18,9 +18,10 @@ export function Logo({
   const isDark = variant === "dark";
 
   const heights = {
-    sm: "h-9",
-    md: "h-11 sm:h-12",
-    lg: "h-14",
+    sm: "h-11 sm:h-12",
+    md: "h-14 sm:h-16 lg:h-20",
+    lg: "h-20 sm:h-24",
+    xl: "h-28 sm:h-32",
   };
 
   return (
@@ -34,16 +35,16 @@ export function Logo({
       <div
         className={cn(
           "relative flex items-center shrink-0 transition-transform duration-200 group-hover:scale-[1.02]",
-          !isDark && "p-1.5 rounded-xl bg-white shadow-sm"
+          !isDark && "p-1.5 rounded-2xl bg-white shadow-sm"
         )}
       >
         <Image
           src="/logo-hepsen-sigorta.png"
           alt="Hepsen Sigorta - Seni Düşünen Sigorta"
-          width={180}
-          height={136}
+          width={454}
+          height={428}
           priority
-          className={cn(heights[size], "w-auto object-contain")}
+          className={cn(heights[size], "w-auto object-contain drop-shadow-sm")}
         />
       </div>
     </Link>

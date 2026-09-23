@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ShieldCheck,
   ArrowRight,
-  MessageCircle,
   PiggyBank,
   HeartPulse,
   LineChart,
@@ -14,6 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { SITE_CONFIG, getWhatsAppUrl, getPhoneHref } from "@/constants/siteConfig";
 
 export function Hero() {
@@ -70,7 +70,7 @@ export function Hero() {
                   size="lg"
                   className="w-full sm:w-auto gap-2.5 text-base shadow-lg"
                 >
-                  <MessageCircle className="w-5 h-5 fill-white text-[#25D366]" />
+                  <WhatsAppIcon className="w-5 h-5 fill-white" />
                   <span>WhatsApp&apos;tan Bilgi Al</span>
                 </Button>
               </a>

@@ -3,7 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ShieldCheck, MessageCircle, FileText } from "lucide-react";
+import { Home, ShieldCheck, FileText } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { SITE_CONFIG, getWhatsAppUrl } from "@/constants/siteConfig";
 import { cn } from "@/lib/utils";
 
@@ -66,7 +67,7 @@ export function MobileBottomNav() {
           className="flex flex-col items-center justify-center h-full text-[11px] font-bold text-[#109347] transition-transform active:scale-95 select-none"
         >
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#25D366] text-white shadow-sm mb-0.5">
-            <MessageCircle className="w-5 h-5 fill-white text-[#25D366]" />
+            <WhatsAppIcon className="w-4 h-4 fill-white" />
           </div>
           <span>WhatsApp</span>
         </a>
