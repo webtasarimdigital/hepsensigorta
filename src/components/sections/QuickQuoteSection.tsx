@@ -16,6 +16,7 @@ import {
   Phone,
   Mail,
   ShieldAlert,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { submitLeadAction } from "@/app/actions/leadActions";
@@ -29,7 +30,25 @@ const SERVICES_LIST = [
   { id: "Diğer / Genel Bilgi", label: "Diğer / Genel Bilgilendirme", icon: HelpCircle, desc: "Özel sigorta talepleriniz" },
 ];
 
-export function QuickQuoteSection({ defaultService }: { defaultService?: string }) {
+export interface QuickQuoteSectionProps {
+  defaultService?: string;
+  showBreadcrumb?: boolean;
+  isH1?: boolean;
+  title?: string;
+  badgeText?: string;
+  subtitle?: string;
+  hideHeader?: boolean;
+}
+
+export function QuickQuoteSection({
+  defaultService,
+  showBreadcrumb = false,
+  isH1 = false,
+  title,
+  badgeText = "Hızlı & Ücretsiz Ön Görüşme",
+  subtitle,
+  hideHeader = false,
+}: QuickQuoteSectionProps) {
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -114,17 +133,42 @@ export function QuickQuoteSection({ defaultService }: { defaultService?: string 
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-400 text-xs font-bold uppercase tracking-wider border border-white/15">
-            Hızlı & Ücretsiz Ön Görüşme
+        {!hideHeader && (
+          <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
+            {showBreadcrumb && (
+              <div className="mb-2">
+                <nav className="inline-flex items-center gap-2 text-xs text-slate-300" aria-label="Breadcrumb">
+                  <Link href="/" className="hover:text-emerald-400 transition-colors">
+                    Ana Sayfa
+                  </Link>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-emerald-400 font-medium">Hızlı Teklif</span>
+                </nav>
+              </div>
+            )}
+
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-400 text-xs font-bold uppercase tracking-wider border border-white/15">
+                {badgeText}
+              </div>
+            </div>
+
+            {isH1 ? (
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+                {title || "Size Özel Teklifi Birlikte Oluşturalım"}
+              </h1>
+            ) : (
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+                {title || "Size Özel Teklifi Birlikte Oluşturalım"}
+              </h2>
+            )}
+
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+              {subtitle ||
+                "İhtiyacınızı ve temel bilgilerinizi paylaşın; Fon Yöneticisi Merve Doğan ve uzman ekibimiz en uygun seçenekleri hazırlayıp size dönsün."}
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
-            Size Özel Teklifi Birlikte Oluşturalım
-          </h2>
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            İhtiyacınızı ve temel bilgilerinizi paylaşın; Fon Yöneticisi Merve Doğan ve uzman ekibimiz en uygun seçenekleri hazırlayıp size dönsün.
-          </p>
-        </div>
+        )}
 
         {/* Form Container */}
         <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-2xl text-slate-800 border border-slate-100">

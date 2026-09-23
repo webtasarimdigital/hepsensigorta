@@ -9,6 +9,24 @@ import { Button } from "@/components/ui/Button";
 import { SITE_CONFIG, getWhatsAppUrl, getPhoneHref } from "@/constants/siteConfig";
 import { cn } from "@/lib/utils";
 
+function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+
 const NAV_LINKS = [
   { name: "Ana Sayfa", href: "/" },
   { name: "Bireysel Emeklilik", href: "/bireysel-emeklilik" },
@@ -44,15 +62,15 @@ export function Navbar() {
         "sticky top-0 z-40 w-full transition-all duration-300",
         scrolled
           ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200/80 py-2.5"
-          : "bg-white border-b border-slate-100 py-3.5"
+          : "bg-white border-b border-slate-100 py-3"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        {/* Brand Logo */}
-        <Logo size="md" withAllianzBadge />
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+        {/* Brand Logo (Clean, no extra badge button) */}
+        <Logo size="md" />
 
-        {/* Desktop Navigation */}
-        <nav className="hidden xl:flex items-center gap-1 2xl:gap-2" aria-label="Ana Menü">
+        {/* Desktop Navigation (No multi-line text wrapping) */}
+        <nav className="hidden xl:flex items-center gap-1 xl:gap-1.5 2xl:gap-2 shrink-0" aria-label="Ana Menü">
           {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -60,9 +78,9 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150",
+                  "px-2.5 2xl:px-3 py-1.5 text-xs xl:text-[13px] 2xl:text-sm font-medium rounded-lg transition-colors whitespace-nowrap",
                   isActive
-                    ? "text-emerald-700 bg-emerald-50/80 font-semibold"
+                    ? "text-emerald-700 bg-emerald-50 font-bold"
                     : "text-slate-700 hover:text-[#0B1F3A] hover:bg-slate-50"
                 )}
               >
@@ -72,39 +90,60 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Desktop Action Buttons */}
-        <div className="hidden md:flex items-center gap-2.5">
-          {/* WhatsApp Direct Chat */}
+        {/* Desktop Action Buttons: Instagram + WhatsApp + Hızlı Teklif Al */}
+        <div className="hidden md:flex items-center gap-2 2xl:gap-2.5 shrink-0">
+          {/* Instagram Button */}
+          <a
+            href={SITE_CONFIG.socialLinks.instagram || "https://instagram.com/hepsensigorta"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-xl text-slate-700 bg-slate-100 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200 border border-slate-200/80 transition-all duration-200 shadow-sm"
+            title="Instagram'da Takip Edin"
+            aria-label="Instagram Hesabımız"
+          >
+            <InstagramIcon className="w-4 h-4" />
+          </a>
+
+          {/* WhatsApp Direct Button */}
           <a
             href={getWhatsAppUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center p-2.5 rounded-xl text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-xl text-white bg-[#25D366] hover:bg-[#20BA5A] transition-all duration-200 shadow-sm shadow-[#25D366]/25 hover:scale-105"
             title="WhatsApp ile Hızlı İletişim"
             aria-label="WhatsApp ile Hızlı İletişim"
           >
-            <MessageCircle className="w-5 h-5 fill-emerald-600 text-white" />
+            <MessageCircle className="w-5 h-5 fill-white text-[#25D366]" />
           </a>
 
-          {/* Quick Quote CTA */}
-          <Link href="/teklif-al">
-            <Button variant="primary" size="md" className="gap-2 shadow-sm font-semibold">
+          {/* Quick Quote CTA (Never wraps) */}
+          <Link href="/teklif-al" className="shrink-0">
+            <Button variant="primary" size="md" className="gap-2 shadow-sm font-semibold whitespace-nowrap text-xs xl:text-sm px-4 py-2">
               <span>Hızlı Teklif Al</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 shrink-0" />
             </Button>
           </Link>
         </div>
 
-        {/* Mobile Hamburger Button */}
-        <div className="flex md:hidden items-center gap-2">
+        {/* Mobile Header Buttons */}
+        <div className="flex md:hidden items-center gap-1.5">
+          <a
+            href={SITE_CONFIG.socialLinks.instagram || "https://instagram.com/hepsensigorta"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-lg text-slate-700 bg-slate-100 border border-slate-200"
+            aria-label="Instagram"
+          >
+            <InstagramIcon className="w-4 h-4" />
+          </a>
           <a
             href={getWhatsAppUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-lg text-emerald-600 bg-emerald-50"
+            className="p-2 rounded-lg text-white bg-[#25D366] shadow-sm"
             aria-label="WhatsApp İletişim"
           >
-            <MessageCircle className="w-5 h-5 fill-emerald-600 text-white" />
+            <MessageCircle className="w-4 h-4 fill-white text-[#25D366]" />
           </a>
           <button
             type="button"

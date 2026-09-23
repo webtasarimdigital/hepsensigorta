@@ -30,24 +30,57 @@ export const metadata: Metadata = {
 };
 
 export default function HayatSigortasiPage() {
-  const faqSchema = {
+  const pageSchema = {
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": service.faqs.map((f) => ({
-      "@type": "Question",
-      "name": f.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": f.answer,
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Ana Sayfa",
+            "item": "https://hepsensigorta.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Hayat Sigortası",
+            "item": "https://hepsensigorta.com/hayat-sigortasi"
+          }
+        ]
       },
-    })),
+      {
+        "@type": "Service",
+        "name": "Hayat Sigortası Çözümleri",
+        "serviceType": "Hayat Sigortası",
+        "provider": {
+          "@type": "InsuranceAgency",
+          "name": "Hepsen Sigorta",
+          "url": "https://hepsensigorta.com"
+        },
+        "description": "Vefat, maluliyet ve kritik hastalık risklerine karşı ailenizin geleceğini koruyun.",
+        "areaServed": "Türkiye"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": service.faqs.map((f) => ({
+          "@type": "Question",
+          "name": f.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": f.answer,
+          },
+        }))
+      }
+    ]
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }}
       />
 
       {/* Hero Section */}

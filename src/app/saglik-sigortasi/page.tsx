@@ -32,24 +32,57 @@ export const metadata: Metadata = {
 };
 
 export default function SaglikSigortasiPage() {
-  const faqSchema = {
+  const pageSchema = {
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": service.faqs.map((f) => ({
-      "@type": "Question",
-      "name": f.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": f.answer,
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Ana Sayfa",
+            "item": "https://hepsensigorta.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Sağlık Sigortası",
+            "item": "https://hepsensigorta.com/saglik-sigortasi"
+          }
+        ]
       },
-    })),
+      {
+        "@type": "Service",
+        "name": "Tamamlayıcı ve Özel Sağlık Sigortası (TSS / ÖSS)",
+        "serviceType": "Sağlık Sigortası",
+        "provider": {
+          "@type": "InsuranceAgency",
+          "name": "Hepsen Sigorta",
+          "url": "https://hepsensigorta.com"
+        },
+        "description": "Özel hastanelerde SGK fark ücreti ödemeden modern tedavi imkanı.",
+        "areaServed": "Türkiye"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": service.faqs.map((f) => ({
+          "@type": "Question",
+          "name": f.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": f.answer,
+          },
+        }))
+      }
+    ]
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }}
       />
 
       {/* Hero Section */}

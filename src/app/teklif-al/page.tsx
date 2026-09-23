@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ChevronRight, ShieldCheck, Phone, MessageCircle } from "lucide-react";
+import { Phone, MessageCircle } from "lucide-react";
 import { QuickQuoteSection } from "@/components/sections/QuickQuoteSection";
 import { SITE_CONFIG, getPhoneHref, getWhatsAppUrl } from "@/constants/siteConfig";
 
@@ -12,28 +11,14 @@ export const metadata: Metadata = {
 export default function TeklifAlPage() {
   return (
     <>
-      {/* Top Banner */}
-      <section className="bg-gradient-to-b from-[#0B1F3A] to-[#122849] text-white pt-10 pb-12 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <nav className="inline-flex items-center gap-2 text-xs text-slate-300 mb-4" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-emerald-400">
-              Ana Sayfa
-            </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-            <span className="text-emerald-400 font-medium">Hızlı Teklif</span>
-          </nav>
-
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
-            Hızlı Teklif Talebi
-          </h1>
-          <p className="text-sm text-slate-300 max-w-xl mx-auto">
-            İhtiyacınıza en uygun BES ve sigorta seçeneklerini öğrenmek için aşağıdaki adımları tamamlayınız.
-          </p>
-        </div>
-      </section>
-
-      {/* Quote Form Component */}
-      <QuickQuoteSection />
+      {/* Tek ve Bütünleşik Başlık + Teklif Formu */}
+      <QuickQuoteSection
+        showBreadcrumb
+        isH1
+        title="Hızlı Teklif Talebi"
+        badgeText="Hızlı & Ücretsiz Ön Görüşme"
+        subtitle="İhtiyacınıza en uygun BES, Hayat ve Sağlık Sigortası seçeneklerini öğrenmek için aşağıdaki adımları tamamlayınız. Fon Yöneticisi Merve Doğan ve uzman ekibimiz en uygun seçenekleri hazırlasın."
+      />
 
       {/* Fast Help Bar */}
       <section className="py-10 bg-white border-t border-slate-200">

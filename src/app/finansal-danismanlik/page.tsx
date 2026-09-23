@@ -31,24 +31,57 @@ export const metadata: Metadata = {
 };
 
 export default function FinansalDanismanlikPage() {
-  const faqSchema = {
+  const pageSchema = {
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": service.faqs.map((f) => ({
-      "@type": "Question",
-      "name": f.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": f.answer,
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Ana Sayfa",
+            "item": "https://hepsensigorta.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Finansal Danışmanlık",
+            "item": "https://hepsensigorta.com/finansal-danismanlik"
+          }
+        ]
       },
-    })),
+      {
+        "@type": "Service",
+        "name": "Finansal Planlama ve Tasarruf Danışmanlığı",
+        "serviceType": "Finansal Danışmanlık",
+        "provider": {
+          "@type": "InsuranceAgency",
+          "name": "Hepsen Sigorta",
+          "url": "https://hepsensigorta.com"
+        },
+        "description": "Uzun vadeli tasarruf planlaması, emeklilik hedefleri ve aile bütçesi risk yönetimi.",
+        "areaServed": "Türkiye"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": service.faqs.map((f) => ({
+          "@type": "Question",
+          "name": f.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": f.answer,
+          },
+        }))
+      }
+    ]
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }}
       />
 
       {/* Hero Section */}
