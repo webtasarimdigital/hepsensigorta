@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #0B1F3A;
+  --color-navy-dark: #061325;
+  --color-navy-light: #162E52;
+  --color-brand-green: #50C878;
+  --color-brand-emerald: #10B981;
+  --color-accent-green: #22C55E;
+  --color-surface-light: #F6F8FA;
+  --color-surface-soft: #EEF2F6;
+  --color-text-dark: #172033;
+  --color-text-muted: #64748B;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #172033;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Safe area support for iOS bottom bar */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
