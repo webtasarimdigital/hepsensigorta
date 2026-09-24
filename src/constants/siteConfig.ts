@@ -95,20 +95,25 @@ export const SITE_CONFIG: SiteConfig = {
   },
 };
 
+import rawSettings from "./siteSettings.json";
+
 export function getWhatsAppUrl(message?: string): string {
   const defaultMsg = "Merhaba, Hepsen Sigorta web sitesinden ulaşıyorum. Bilgi almak istiyorum.";
   const encoded = encodeURIComponent(message || defaultMsg);
-  return `https://wa.me/${SITE_CONFIG.whatsappRaw}?text=${encoded}`;
+  const waRaw = (rawSettings.whatsapp || SITE_CONFIG.whatsapp).replace(/[^0-9]/g, "");
+  return `https://wa.me/${waRaw || SITE_CONFIG.whatsappRaw}?text=${encoded}`;
 }
 
 export function getPhoneHref(): string {
-  return `tel:+${SITE_CONFIG.phoneRaw}`;
+  const pRaw = (rawSettings.phone || SITE_CONFIG.phone).replace(/[^0-9]/g, "");
+  return `tel:+${pRaw || SITE_CONFIG.phoneRaw}`;
 }
 
 export function getLandlineHref(): string {
-  return `tel:+${SITE_CONFIG.landlineRaw}`;
+  const lRaw = (rawSettings.landline || SITE_CONFIG.landline).replace(/[^0-9]/g, "");
+  return `tel:+${lRaw || SITE_CONFIG.landlineRaw}`;
 }
 
 export function getEmailHref(email?: string): string {
-  return `mailto:${email || SITE_CONFIG.emailContact}`;
+  return `mailto:${email || rawSettings.emailContact || rawSettings.emailPrimary || SITE_CONFIG.emailContact}`;
 }

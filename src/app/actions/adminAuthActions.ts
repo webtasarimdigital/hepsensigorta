@@ -2,9 +2,11 @@
 
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient, createPublicClient } from "@/lib/supabase/server";
+import { readCloudJson, writeCloudJson } from "@/lib/supabase/storageStore";
 
 const AUTH_COOKIE_NAME = "hepsen_admin_session";
 
@@ -20,7 +22,47 @@ function getLocalAuthPath(): string {
   return path.join(process.cwd(), "src", "constants", "adminAuth.json");
 }
 
-function readAuthCredentials(): { username: string; password: string } {
+function getTmpAuthPath(): string {
+  return path.join(os.tmpdir(), "hepsen_adminAuth.json");
+}
+
+async function readAuthCredentials(): Promise<{ username: string; password: string }> {
+  const fallback = {
+    username: "merve",
+    password: process.env.ADMIN_PASSWORD || "adminmerve",
+  };
+
+  // 1. Try persistent cloud storage (Supabase Storage uploads/data/adminAuth.json)
+  try {
+    const cloud = await readCloudJson<{ username?: string; password?: string }>("adminAuth.json", fallback);
+    if (cloud && cloud.password) {
+      return {
+        username: cloud.username || "merve",
+        password: cloud.password,
+      };
+    }
+  } catch (err) {
+    console.warn("[readAuthCredentials Cloud Notice]", err);
+  }
+
+  // 2. Try /tmp
+  try {
+    const tmpPath = getTmpAuthPath();
+    if (fs.existsSync(tmpPath)) {
+      const content = fs.readFileSync(tmpPath, "utf-8");
+      const parsed = JSON.parse(content);
+      if (parsed.password) {
+        return {
+          username: parsed.username || "merve",
+          password: parsed.password,
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("[readAuthCredentials tmp Notice]", err);
+  }
+
+  // 3. Try local repository file
   try {
     const filePath = getLocalAuthPath();
     if (fs.existsSync(filePath)) {
@@ -34,38 +76,39 @@ function readAuthCredentials(): { username: string; password: string } {
       }
     }
   } catch (err) {
-    console.warn("[readAuthCredentials Error]", err);
+    console.warn("[readAuthCredentials local Notice]", err);
   }
 
-  return {
-    username: "merve",
-    password: process.env.ADMIN_PASSWORD || "adminmerve",
-  };
+  return fallback;
 }
 
-function writeAuthCredentials(credentials: { username: string; password: string }): void {
+async function writeAuthCredentials(credentials: { username: string; password: string }): Promise<void> {
+  const payload = {
+    username: credentials.username,
+    password: credentials.password,
+    updated_at: new Date().toISOString(),
+  };
+
+  // 1. Write to Persistent Cloud Storage (Infallible across all Vercel Lambdas)
+  await writeCloudJson("adminAuth.json", payload);
+
+  // 2. Write to /tmp
   try {
-    const filePath = getLocalAuthPath();
-    fs.writeFileSync(
-      filePath,
-      JSON.stringify(
-        {
-          username: credentials.username,
-          password: credentials.password,
-          updated_at: new Date().toISOString(),
-        },
-        null,
-        2
-      ),
-      "utf-8"
-    );
+    fs.writeFileSync(getTmpAuthPath(), JSON.stringify(payload, null, 2), "utf-8");
   } catch (err) {
-    console.warn("[writeAuthCredentials Error]", err);
+    console.warn("[writeTmpAuthCredentials Notice]", err);
+  }
+
+  // 3. Write locally if filesystem allows
+  try {
+    fs.writeFileSync(getLocalAuthPath(), JSON.stringify(payload, null, 2), "utf-8");
+  } catch (err) {
+    console.warn("[writeLocalAuthCredentials Notice]", err);
   }
 }
 
 export async function getCurrentAdminUsernameAction(): Promise<string> {
-  const current = readAuthCredentials();
+  const current = await readAuthCredentials();
   return current.username || "merve";
 }
 
@@ -77,7 +120,7 @@ export async function loginAdminAction(formData: FormData) {
     return { success: false, error: "Lütfen kullanıcı adı ve şifrenizi giriniz." };
   }
 
-  const activeCredentials = readAuthCredentials();
+  const activeCredentials = await readAuthCredentials();
 
   // Allow custom configured username or any standard alias
   const allowedUsernames = [
@@ -131,7 +174,7 @@ export async function changeAdminPasswordAction(data: {
   newUsername?: string;
 }): Promise<{ success: boolean; error?: string; message?: string }> {
   try {
-    const active = readAuthCredentials();
+    const active = await readAuthCredentials();
 
     // 1. Validate current password
     const isCurrentValid =
@@ -154,8 +197,8 @@ export async function changeAdminPasswordAction(data: {
     const updatedUsername = data.newUsername?.trim().toLowerCase() || active.username || "merve";
     const updatedPassword = data.newPassword.trim();
 
-    // 3. Save to local storage
-    writeAuthCredentials({
+    // 3. Save to persistent cloud storage & /tmp
+    await writeAuthCredentials({
       username: updatedUsername,
       password: updatedPassword,
     });
