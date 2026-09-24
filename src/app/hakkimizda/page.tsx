@@ -25,7 +25,7 @@ export default function HakkimizdaPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-[#0B1F3A] to-[#122849] text-white pt-10 pb-16 lg:pt-14 lg:pb-24 relative overflow-hidden">
+      <section className="bg-gradient-to-b from-[#0B1F3A] to-[#122849] text-white pt-10 pb-14 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <nav className="flex items-center gap-2 text-xs text-slate-300 mb-6" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-emerald-400">
@@ -35,15 +35,15 @@ export default function HakkimizdaPage() {
             <span className="text-emerald-400 font-medium">Hakkımızda</span>
           </nav>
 
-          <div className="max-w-3xl space-y-4">
+          <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30">
-              <UserCheck className="w-4 h-4" />
+              <UserCheck className="w-3.5 h-3.5" />
               <span>Marka Hikayemiz & Değerlerimiz</span>
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
               Seni Düşünen Sigorta: Hepsen Sigorta
             </h1>
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
               Standart kalıplardan uzak, tamamen sizin ve ailenizin ihtiyaçlarına odaklanan kişisel bir danışmanlık deneyimi sunuyoruz.
             </p>
           </div>
