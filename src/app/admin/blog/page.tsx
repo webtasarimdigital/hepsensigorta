@@ -183,7 +183,7 @@ export default function AdminBlogPage() {
                       alt={post.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      unoptimized={post.cover_image.startsWith("/uploads")}
+                      unoptimized={true}
                     />
                     <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
                       {post.category}
@@ -255,113 +255,119 @@ export default function AdminBlogPage() {
 
       {/* Create / Edit Modal with ImageUploader */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 my-8 space-y-5 animate-fadeIn">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <h3 className="text-xl font-bold text-[#0B1F3A]">
-                {editingPost ? "Blog Yazısını Düzenle" : "Yeni Blog Yazısı Oluştur"}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {errorMsg && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-semibold">
-                {errorMsg}
-              </div>
-            )}
-
-            <form onSubmit={handleSave} className="space-y-4 text-xs sm:text-sm">
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700">Yazı Başlığı *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Örn: BES Fon Dağılımı Seçerken Bilmeniz Gerekenler"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="min-h-full flex items-start justify-center p-4 py-6">
+            <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 animate-fadeIn flex flex-col max-h-[calc(100vh-3rem)]">
+              {/* Fixed Header */}
+              <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100 shrink-0">
+                <h3 className="text-xl font-bold text-[#0B1F3A]">
+                  {editingPost ? "Blog Yazısını Düzenle" : "Yeni Blog Yazısı Oluştur"}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700">Kategori</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-                  >
-                    <option value="Bireysel Emeklilik">Bireysel Emeklilik</option>
-                    <option value="Hayat Sigortası">Hayat Sigortası</option>
-                    <option value="Sağlık Sigortası">Sağlık Sigortası</option>
-                    <option value="Finansal Planlama">Finansal Planlama</option>
-                    <option value="Rehberler">Rehberler</option>
-                  </select>
-                </div>
+              {/* Scrollable Content */}
+              <div className="overflow-y-auto flex-1 p-6 pt-4">
+                {errorMsg && (
+                  <div className="p-3 mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-semibold">
+                    {errorMsg}
+                  </div>
+                )}
 
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700">Tahmini Okuma Süresi</label>
-                  <input
-                    type="text"
-                    value={formData.read_time}
-                    onChange={(e) => setFormData({ ...formData, read_time: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                <form onSubmit={handleSave} className="space-y-4 text-xs sm:text-sm">
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Yazı Başlığı *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Örn: BES Fon Dağılımı Seçerken Bilmeniz Gerekenler"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="font-bold text-slate-700">Kategori</label>
+                      <select
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                      >
+                        <option value="Bireysel Emeklilik">Bireysel Emeklilik</option>
+                        <option value="Hayat Sigortası">Hayat Sigortası</option>
+                        <option value="Sağlık Sigortası">Sağlık Sigortası</option>
+                        <option value="Finansal Planlama">Finansal Planlama</option>
+                        <option value="Rehberler">Rehberler</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-bold text-slate-700">Tahmini Okuma Süresi</label>
+                      <input
+                        type="text"
+                        value={formData.read_time}
+                        onChange={(e) => setFormData({ ...formData, read_time: e.target.value })}
+                        className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Cover Image with Live Uploader */}
+                  <ImageUploader
+                    label="Kapak Görseli (Dosya Seçin veya URL Yapıştırın)"
+                    value={formData.cover_image}
+                    onChange={(url) => setFormData({ ...formData, cover_image: url })}
                   />
-                </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Kısa Özet (Meta Açıklaması) *</label>
+                    <textarea
+                      rows={2}
+                      required
+                      placeholder="Yazının ana mesajını özetleyen 1-2 cümle..."
+                      value={formData.excerpt}
+                      onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                      className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                    />
+                  </div>
+
+                  <RichTextEditor
+                    label="Detaylı İçerik (Boyut, Renk ve Biçimlendirme Araçları) *"
+                    value={formData.content}
+                    onChange={(html) => setFormData({ ...formData, content: html })}
+                    placeholder="Yazınızın detaylı metnini buraya giriniz. Başlıkları, renkleri ve listeleri yukarıdaki butonlardan düzenleyebilirsiniz..."
+                    minHeight="220px"
+                  />
+
+                  <label className="flex items-center gap-2 cursor-pointer pt-1">
+                    <input
+                      type="checkbox"
+                      checked={formData.published}
+                      onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                      className="h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span className="font-bold text-slate-700">Bu yazıyı web sitesinde hemen yayınla</span>
+                  </label>
+
+                  <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <Button variant="secondary" size="md" type="button" onClick={() => setIsModalOpen(false)}>
+                      Vazgeç
+                    </Button>
+                    <Button variant="primary" size="md" type="submit" isLoading={saving}>
+                      {editingPost ? "Değişiklikleri Kaydet" : "Yazıyı Kaydet"}
+                    </Button>
+                  </div>
+                </form>
               </div>
-
-              {/* Cover Image with Live Uploader */}
-              <ImageUploader
-                label="Kapak Görseli (Dosya Seçin veya URL Yapıştırın)"
-                value={formData.cover_image}
-                onChange={(url) => setFormData({ ...formData, cover_image: url })}
-              />
-
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700">Kısa Özet (Meta Açıklaması) *</label>
-                <textarea
-                  rows={2}
-                  required
-                  placeholder="Yazının ana mesajını özetleyen 1-2 cümle..."
-                  value={formData.excerpt}
-                  onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                  className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
-                />
-              </div>
-
-              <RichTextEditor
-                label="Detaylı İçerik (Boyut, Renk ve Biçimlendirme Araçları) *"
-                value={formData.content}
-                onChange={(html) => setFormData({ ...formData, content: html })}
-                placeholder="Yazınızın detaylı metnini buraya giriniz. Başlıkları, renkleri ve listeleri yukarıdaki butonlardan düzenleyebilirsiniz..."
-                minHeight="280px"
-              />
-
-              <label className="flex items-center gap-2 cursor-pointer pt-1">
-                <input
-                  type="checkbox"
-                  checked={formData.published}
-                  onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
-                  className="h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
-                />
-                <span className="font-bold text-slate-700">Bu yazıyı web sitesinde hemen yayınla</span>
-              </label>
-
-              <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
-                <Button variant="secondary" size="md" type="button" onClick={() => setIsModalOpen(false)}>
-                  Vazgeç
-                </Button>
-                <Button variant="primary" size="md" type="submit" isLoading={saving}>
-                  {editingPost ? "Değişiklikleri Kaydet" : "Yazıyı Kaydet"}
-                </Button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

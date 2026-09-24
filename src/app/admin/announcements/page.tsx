@@ -174,7 +174,7 @@ export default function AdminAnnouncementsPage() {
                     alt={item.title}
                     fill
                     className="object-cover"
-                    unoptimized={item.image.startsWith("/uploads")}
+                    unoptimized={true}
                   />
                 </div>
               )}
@@ -244,114 +244,121 @@ export default function AdminAnnouncementsPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 my-8 space-y-5 animate-fadeIn">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <h3 className="text-xl font-bold text-[#0B1F3A]">
-                {editingItem ? "Duyuruyu Düzenle" : "Yeni Duyuru Ekle"}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {errorMsg && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-semibold">
-                {errorMsg}
-              </div>
-            )}
-
-            <form onSubmit={handleSave} className="space-y-4 text-xs sm:text-sm">
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700">Duyuru Başlığı *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Örn: 2026 Yılı BES Devlet Katkısı Üst Limiti Güncellendi"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="min-h-full flex items-start justify-center p-4 py-6">
+            <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 animate-fadeIn flex flex-col max-h-[calc(100vh-3rem)]">
+              {/* Fixed Header */}
+              <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100 shrink-0">
+                <h3 className="text-xl font-bold text-[#0B1F3A]">
+                  {editingItem ? "Duyuruyu Düzenle" : "Yeni Duyuru Ekle"}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700">Rozet / Tür</label>
-                  <select
-                    value={formData.badge}
-                    onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-                  >
-                    <option value="Duyuru">Duyuru</option>
-                    <option value="Kampanya">Kampanya</option>
-                    <option value="Mevzuat">Mevzuat</option>
-                    <option value="Allianz">Allianz Güncellemesi</option>
-                  </select>
-                </div>
+              {/* Scrollable Content */}
+              <div className="overflow-y-auto flex-1 p-6 pt-4">
+                {errorMsg && (
+                  <div className="p-3 mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-semibold">
+                    {errorMsg}
+                  </div>
+                )}
 
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-700">Yönlendirme Linki (Opsiyonel)</label>
-                  <input
-                    type="url"
-                    placeholder="https://..."
-                    value={formData.link}
-                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                <form onSubmit={handleSave} className="space-y-4 text-xs sm:text-sm">
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Duyuru Başlığı *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Örn: 2026 Yılı BES Devlet Katkısı Üst Limiti Güncellendi"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="font-bold text-slate-700">Rozet / Tür</label>
+                      <select
+                        value={formData.badge}
+                        onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                        className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                      >
+                        <option value="Duyuru">Duyuru</option>
+                        <option value="Kampanya">Kampanya</option>
+                        <option value="Mevzuat">Mevzuat</option>
+                        <option value="Allianz">Allianz Güncellemesi</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="font-bold text-slate-700">Yönlendirme Linki (Opsiyonel)</label>
+                      <input
+                        type="url"
+                        placeholder="https://..."
+                        value={formData.link}
+                        onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                        className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Image Uploader for Announcement */}
+                  <ImageUploader
+                    label="Duyuru / Kampanya Görseli (Opsiyonel)"
+                    value={formData.image}
+                    onChange={(url) => setFormData({ ...formData, image: url })}
                   />
-                </div>
+
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-700">Kısa Özet *</label>
+                    <textarea
+                      rows={2}
+                      required
+                      placeholder="Duyurunun ana özetini giriniz..."
+                      value={formData.excerpt}
+                      onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                      className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                    />
+                  </div>
+
+                  {/* Word-Style Rich Text Editor */}
+                  <RichTextEditor
+                    label="Detaylı Duyuru Metni (Boyut, Renk ve Biçimlendirme Araçları) *"
+                    value={formData.content}
+                    onChange={(html) => setFormData({ ...formData, content: html })}
+                    placeholder="Duyuru detaylarını buraya yazabilirsiniz. Başlık, renk ve liste butonlarını kullanabilirsiniz..."
+                    minHeight="180px"
+                  />
+
+                  <label className="flex items-center gap-2 cursor-pointer pt-1">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_featured}
+                      onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                      className="h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span className="font-bold text-slate-700">Ana Sayfada &ldquo;Önemli&rdquo; rozetiyle öne çıkar</span>
+                  </label>
+
+                  {/* Fixed Footer */}
+                  <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <Button variant="secondary" size="md" type="button" onClick={() => setIsModalOpen(false)}>
+                      Vazgeç
+                    </Button>
+                    <Button variant="primary" size="md" type="submit" isLoading={saving}>
+                      {editingItem ? "Değişiklikleri Kaydet" : "Duyuruyu Yayınla"}
+                    </Button>
+                  </div>
+                </form>
               </div>
-
-              {/* Image Uploader for Announcement */}
-              <ImageUploader
-                label="Duyuru / Kampanya Görseli (Opsiyonel)"
-                value={formData.image}
-                onChange={(url) => setFormData({ ...formData, image: url })}
-              />
-
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700">Kısa Özet *</label>
-                <textarea
-                  rows={2}
-                  required
-                  placeholder="Duyurunun ana özetini giriniz..."
-                  value={formData.excerpt}
-                  onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                  className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
-                />
-              </div>
-
-              {/* Word-Style Rich Text Editor */}
-              <RichTextEditor
-                label="Detaylı Duyuru Metni (Boyut, Renk ve Biçimlendirme Araçları) *"
-                value={formData.content}
-                onChange={(html) => setFormData({ ...formData, content: html })}
-                placeholder="Duyuru detaylarını buraya yazabilirsiniz. Başlık, renk ve liste butonlarını kullanabilirsiniz..."
-                minHeight="220px"
-              />
-
-              <label className="flex items-center gap-2 cursor-pointer pt-1">
-                <input
-                  type="checkbox"
-                  checked={formData.is_featured}
-                  onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                  className="h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
-                />
-                <span className="font-bold text-slate-700">Ana Sayfada &ldquo;Önemli&rdquo; rozetiyle öne çıkar</span>
-              </label>
-
-              <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
-                <Button variant="secondary" size="md" type="button" onClick={() => setIsModalOpen(false)}>
-                  Vazgeç
-                </Button>
-                <Button variant="primary" size="md" type="submit" isLoading={saving}>
-                  {editingItem ? "Değişiklikleri Kaydet" : "Duyuruyu Yayınla"}
-                </Button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

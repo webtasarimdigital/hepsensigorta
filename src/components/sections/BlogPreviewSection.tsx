@@ -57,7 +57,7 @@ export async function BlogPreviewSection() {
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 380px"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    unoptimized={post.cover_image.startsWith("/uploads")}
+                    unoptimized={true}
                   />
                   <div className="absolute top-3 left-3 bg-[#0B1F3A]/90 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1 rounded-full">
                     {post.category}

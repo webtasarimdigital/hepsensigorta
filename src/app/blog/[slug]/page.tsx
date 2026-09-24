@@ -125,7 +125,7 @@ export default async function BlogPostPage({ params }: Props) {
                 priority
                 sizes="(max-width: 1024px) 100vw, 850px"
                 className="object-cover"
-                unoptimized={post.cover_image.startsWith("/uploads")}
+                unoptimized={true}
               />
             </div>
           )}

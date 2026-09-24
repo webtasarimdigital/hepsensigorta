@@ -93,7 +93,7 @@ export default async function DuyurularPage() {
                       alt={item.title}
                       fill
                       className="object-cover"
-                      unoptimized={item.image.startsWith("/uploads")}
+                      unoptimized={true}
                     />
                   </div>
                 )}

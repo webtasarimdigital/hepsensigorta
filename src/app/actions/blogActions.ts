@@ -229,10 +229,14 @@ export async function saveBlogPostAction(input: BlogInput) {
       console.warn("[saveBlogPostAction DB notice]", dbErr);
     }
 
-    revalidatePath("/blog");
-    revalidatePath(`/blog/${slug}`);
-    revalidatePath("/admin/blog");
-    revalidatePath("/");
+    try {
+      revalidatePath("/blog");
+      revalidatePath(`/blog/${slug}`);
+      revalidatePath("/admin/blog");
+      revalidatePath("/");
+    } catch {
+      // outside request scope
+    }
 
     return { success: true, item: record };
   } catch (err: any) {
@@ -258,9 +262,13 @@ export async function deleteBlogPostAction(id: string) {
       console.warn("[deleteBlogPostAction DB notice]", dbErr);
     }
 
-    revalidatePath("/blog");
-    revalidatePath("/admin/blog");
-    revalidatePath("/");
+    try {
+      revalidatePath("/blog");
+      revalidatePath("/admin/blog");
+      revalidatePath("/");
+    } catch {
+      // outside request scope
+    }
 
     return { success: true };
   } catch (err: any) {

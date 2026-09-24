@@ -168,9 +168,13 @@ export async function saveAnnouncementAction(input: AnnouncementInput) {
       console.warn("[saveAnnouncementAction DB notice]", dbErr);
     }
 
-    revalidatePath("/duyurular");
-    revalidatePath("/admin/announcements");
-    revalidatePath("/");
+    try {
+      revalidatePath("/duyurular");
+      revalidatePath("/admin/announcements");
+      revalidatePath("/");
+    } catch {
+      // outside request scope
+    }
 
     return { success: true, item: record };
   } catch (err: any) {
@@ -196,9 +200,13 @@ export async function deleteAnnouncementAction(id: string) {
       console.warn("[deleteAnnouncementAction DB notice]", dbErr);
     }
 
-    revalidatePath("/duyurular");
-    revalidatePath("/admin/announcements");
-    revalidatePath("/");
+    try {
+      revalidatePath("/duyurular");
+      revalidatePath("/admin/announcements");
+      revalidatePath("/");
+    } catch {
+      // outside request scope
+    }
 
     return { success: true };
   } catch (err: any) {
