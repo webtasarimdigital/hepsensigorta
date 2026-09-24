@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { sendLeadNotificationEmail } from "@/lib/mail";
+import { revalidatePath } from "next/cache";
 
 export interface LeadSubmissionInput {
   service: string;
@@ -51,7 +51,7 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
   try {
     let supabaseSaved = false;
 
-    // 2. Try inserting into Supabase (Admin client preferred to bypass RLS, fallback to regular client)
+    // 2. Insert directly into Supabase leads table (Admin client preferred to bypass RLS, fallback to regular client)
     try {
       const supabaseAdmin = createAdminClient();
       const supabaseClient = await createClient();
@@ -74,6 +74,8 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
 
         if (!error) {
           supabaseSaved = true;
+          revalidatePath("/admin");
+          revalidatePath("/admin/leads");
         } else {
           console.warn("[Supabase Insert Warning]", error.message);
         }
@@ -82,21 +84,7 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
       console.warn("[Database Connection Warning]", dbErr);
     }
 
-    // 3. Send Notification Email
-    try {
-      await sendLeadNotificationEmail({
-        service: data.service,
-        fullName: data.fullName.trim(),
-        phone: data.phone.trim(),
-        email: data.email?.trim(),
-        city: data.city?.trim(),
-        preferredContact: data.preferredContact,
-        message: data.message?.trim(),
-      });
-    } catch (mailErr) {
-      console.warn("[Mail Dispatch Warning]", mailErr);
-    }
-
+    // Direct return without email dispatching
     return {
       success: true,
       message: "Talebiniz başarıyla alındı. Uzman danışmanımız en kısa sürede sizinle iletişime geçecektir.",
@@ -154,6 +142,10 @@ export async function updateLeadStatusAction(id: string, status: string) {
       .eq("id", id);
 
     if (error) throw error;
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/leads");
+
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -175,6 +167,10 @@ export async function updateLeadNoteAction(id: string, admin_note: string) {
       .eq("id", id);
 
     if (error) throw error;
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/leads");
+
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -192,6 +188,10 @@ export async function deleteLeadAction(id: string) {
 
     const { error } = await client.from("leads").delete().eq("id", id);
     if (error) throw error;
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/leads");
+
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
