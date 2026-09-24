@@ -26,12 +26,11 @@ export async function readCloudJson<T>(fileName: string, localFallback: T): Prom
     console.warn(`[storageStore read client notice for ${fileName}]`, err);
   }
 
-  // 2. Try direct public HTTPS fetch (cache-busted, zero dependencies, infallible across all Vercel Lambdas)
+  // 2. Try direct public HTTPS fetch (infallible across all Vercel Lambdas)
   try {
-    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/uploads/data/${fileName}?t=${Date.now()}`;
+    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/uploads/data/${fileName}`;
     const res = await fetch(publicUrl, {
-      cache: "no-store",
-      headers: { "Cache-Control": "no-cache" },
+      next: { revalidate: 0 },
     });
 
     if (res.ok) {
