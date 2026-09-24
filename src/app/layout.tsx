@@ -1,12 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { TopBar } from "@/components/layout/TopBar";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-import { FloatingWhatsApp } from "@/components/layout/FloatingWhatsApp";
-import { CookieConsent } from "@/components/layout/CookieConsent";
+import { PublicShell } from "@/components/layout/PublicShell";
 import { SITE_CONFIG } from "@/constants/siteConfig";
 
 const inter = Inter({
@@ -224,14 +219,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }}
         />
       </head>
-      <body className="min-h-screen flex flex-col font-sans antialiased text-[#172033] bg-white selection:bg-emerald-100 selection:text-emerald-900">
-        <TopBar />
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <MobileBottomNav />
-        <FloatingWhatsApp />
-        <CookieConsent />
+      <body className="min-h-screen font-sans antialiased text-[#172033] bg-white selection:bg-emerald-100 selection:text-emerald-900">
+        <PublicShell>{children}</PublicShell>
       </body>
     </html>
   );

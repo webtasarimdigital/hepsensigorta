@@ -71,13 +71,13 @@ export default function IletisimPage() {
           <div className="max-w-3xl space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-400/30">
               <MapPin className="w-4 h-4" />
-              <span>Kadıköy Kozyatağı Ofisimiz & Uzaktan İletişim</span>
+              <span>Kadıköy Kozyatağı Ofisimiz & Kesintisiz İletişim</span>
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
               Bizimle İletişime Geçin
             </h1>
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              İstanbul&apos;da yüz yüze görüşme veya Türkiye&apos;nin her yerinden uzaktan destek için bizimle iletişime geçebilirsiniz.
+              Bireysel Emeklilik, Hayat ve Sağlık Sigortası ihtiyaçlarınız için uzman ekibimizle dilediğiniz zaman iletişime geçebilirsiniz.
             </p>
           </div>
         </div>

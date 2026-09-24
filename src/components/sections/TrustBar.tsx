@@ -9,13 +9,13 @@ const TRUST_ITEMS = [
   },
   {
     icon: MapPin,
-    title: "İstanbul'da Yüz Yüze",
-    desc: "Kadıköy Kozyatağı ofisimizde birebir görüşme",
+    title: "Kozyatağı / Kadıköy",
+    desc: "Merkezi ofisimizde profesyonel acentelik desteği",
   },
   {
     icon: Globe,
-    title: "Türkiye Geneli Destek",
-    desc: "Uzaktan telefon, WhatsApp ve online danışmanlık",
+    title: "Tüm Türkiye'ye Hizmet",
+    desc: "Telefon, WhatsApp ve online hızlı danışmanlık",
   },
   {
     icon: Users,

@@ -14,7 +14,7 @@ export function TopBar() {
           </div>
           <div className="flex items-center gap-1.5 text-slate-300">
             <MapPin className="w-3.5 h-3.5 text-slate-400" />
-            <span>Kozyatağı, Kadıköy / İstanbul (Yüz Yüze & Uzaktan Destek)</span>
+            <span>Kozyatağı, Kadıköy / İstanbul</span>
           </div>
         </div>
 

@@ -47,7 +47,7 @@ export function Hero() {
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
-              Hepsen Sigorta ile bireysel emeklilik, hayat ve sağlık ihtiyaçlarınız için size uygun seçenekleri birlikte değerlendirelim. İstanbul&apos;da yüz yüze, Türkiye genelinde uzaktan destek alın.
+              Hepsen Sigorta ile bireysel emeklilik, hayat ve sağlık ihtiyaçlarınız için size uygun seçenekleri birlikte değerlendirelim.
             </p>
 
             {/* CTAs */}
@@ -84,11 +84,11 @@ export function Hero() {
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Kozyatağı&apos;nda Yüz Yüze</span>
+                <span>Allianz Yetkili Acente</span>
               </div>
               <div className="flex items-center gap-1.5 col-span-2 sm:col-span-1">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Türkiye Geneli Uzaktan</span>
+                <span>Ücretsiz Ön Analiz</span>
               </div>
             </div>
           </div>
