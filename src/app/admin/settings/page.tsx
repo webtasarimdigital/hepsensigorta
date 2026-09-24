@@ -1,9 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Settings, Save, CheckCircle2, Building, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import {
+  Settings,
+  Save,
+  CheckCircle2,
+  Building,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+  KeyRound,
+  Lock,
+  Eye,
+  EyeOff,
+  User,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { getSiteSettingsAction, saveSiteSettingsAction } from "@/app/actions/settingsActions";
+import {
+  changeAdminPasswordAction,
+  getCurrentAdminUsernameAction,
+} from "@/app/actions/adminAuthActions";
 import { SiteSettingsData, DEFAULT_SETTINGS } from "@/types/settings";
 import { useSiteSettings } from "@/context/SiteSettingsContext";
 
@@ -16,11 +34,27 @@ export default function AdminSettingsPage() {
 
   const [settings, setSettings] = useState<SiteSettingsData>(DEFAULT_SETTINGS);
 
+  // Password change state
+  const [currentUsername, setCurrentUsername] = useState("merve");
+  const [newUsername, setNewUsername] = useState("merve");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
   useEffect(() => {
     async function load() {
       try {
-        const data = await getSiteSettingsAction();
-        setSettings(data);
+        const [settingsData, username] = await Promise.all([
+          getSiteSettingsAction(),
+          getCurrentAdminUsernameAction(),
+        ]);
+        setSettings(settingsData);
+        setCurrentUsername(username);
+        setNewUsername(username);
       } catch (err) {
         console.error("Failed to load settings:", err);
       } finally {
@@ -52,6 +86,37 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordSaving(true);
+    setPasswordSuccess(null);
+    setPasswordError(null);
+
+    try {
+      const res = await changeAdminPasswordAction({
+        currentPassword,
+        newPassword,
+        confirmPassword,
+        newUsername,
+      });
+
+      if (res.success) {
+        setPasswordSuccess(res.message || "Şifreniz başarıyla güncellendi!");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setCurrentUsername(newUsername);
+        setTimeout(() => setPasswordSuccess(null), 6000);
+      } else {
+        setPasswordError(res.error || "Şifre değiştirilemedi.");
+      }
+    } catch (err: any) {
+      setPasswordError(err?.message || "Beklenmedik bir hata oluştu.");
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -64,7 +129,7 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-8 max-w-5xl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
         <div>
@@ -257,7 +322,7 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Submit */}
+        {/* Submit General Settings */}
         <div className="flex items-center justify-between bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
           <div className="text-xs text-slate-500">
             Değişiklikler kaydedildiğinde tüm siteye anında yansır.
@@ -284,6 +349,134 @@ export default function AdminSettingsPage() {
           </Button>
         </div>
       </form>
+
+      {/* ========================================================================= */}
+      {/* 3. Password & Security Management Card */}
+      {/* ========================================================================= */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+        <div className="pb-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-black text-[#0B1F3A] flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-emerald-600" />
+              <span>Yönetim Paneli Giriş & Şifre Değiştirme</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-1">
+              Panele giriş yaparken kullandığınız şifreyi ve kullanıcı adını buradan dilediğiniz gibi güncelleyebilirsiniz.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 rounded-xl text-xs text-slate-600 font-semibold shrink-0">
+            <User className="w-3.5 h-3.5 text-slate-500" />
+            <span>Aktif Kullanıcı: <strong>{currentUsername}</strong></span>
+          </div>
+        </div>
+
+        {passwordSuccess && (
+          <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-bold rounded-2xl flex items-center gap-2 animate-fadeIn">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <span>{passwordSuccess}</span>
+          </div>
+        )}
+
+        {passwordError && (
+          <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm font-bold rounded-2xl flex items-center gap-2 animate-fadeIn">
+            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+            <span>{passwordError}</span>
+          </div>
+        )}
+
+        <form onSubmit={handlePasswordChange} className="space-y-4 text-xs sm:text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">Kullanıcı Adı</label>
+              <input
+                type="text"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                placeholder="merve"
+                required
+              />
+              <span className="text-[10px] text-slate-400 block">Varsayılan: merve</span>
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">Mevcut Şifre *</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full px-4 py-2.5 pr-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                  placeholder="Mevcut şifrenizi girin..."
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <span className="text-[10px] text-slate-400 block">İlk şifreniz: adminmerve</span>
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">Yeni Şifre *</label>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                placeholder="En az 6 karakter..."
+                required
+                minLength={6}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">Yeni Şifre Tekrar *</label>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                placeholder="Yeni şifrenizi tekrar girin..."
+                required
+                minLength={6}
+              />
+            </div>
+          </div>
+
+          <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+            <span className="text-xs text-slate-400 flex items-center gap-1">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Güvenli şifre saklama ve anında aktif olma</span>
+            </span>
+
+            <Button
+              variant="navy"
+              size="md"
+              type="submit"
+              disabled={passwordSaving}
+              className="gap-2 px-6"
+            >
+              {passwordSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Şifre Güncelleniyor...</span>
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4" />
+                  <span>Şifreyi Değiştir</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
