@@ -15,6 +15,20 @@ export interface LeadSubmissionInput {
   marketingConsent?: boolean;
 }
 
+export interface LeadRecord {
+  id: string;
+  created_at: string;
+  service: string;
+  full_name: string;
+  phone: string;
+  email: string | null;
+  city: string | null;
+  preferred_contact: string;
+  message: string | null;
+  status: "Yeni" | "İletişime Geçildi" | "Görüşme Yapıldı" | "Tamamlandı" | "Uygun Değil";
+  admin_note: string | null;
+}
+
 export async function submitLeadAction(data: LeadSubmissionInput) {
   // 1. Validation
   if (!data.fullName || data.fullName.trim().length < 3) {
@@ -35,21 +49,26 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
   }
 
   try {
-    // 2. Try inserting into Supabase
     let supabaseSaved = false;
+
+    // 2. Try inserting into Supabase (Admin client preferred to bypass RLS, fallback to regular client)
     try {
-      const supabase = await createClient();
-      if (supabase) {
-        const { error } = await supabase.from("leads").insert([
+      const supabaseAdmin = createAdminClient();
+      const supabaseClient = await createClient();
+      const client = supabaseAdmin || supabaseClient;
+
+      if (client) {
+        const { error } = await client.from("leads").insert([
           {
             service: data.service,
             full_name: data.fullName.trim(),
             phone: data.phone.trim(),
             email: data.email?.trim() || null,
             city: data.city?.trim() || null,
-            preferred_contact: data.preferredContact || "Telefon",
+            preferred_contact: data.preferredContact || "WhatsApp",
             message: data.message?.trim() || null,
             status: "Yeni",
+            admin_note: null,
           },
         ]);
 
@@ -89,5 +108,92 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
       success: false,
       error: "Talebiniz işlenirken beklenmedik bir durum oluştu. Dilerseniz WhatsApp veya telefon ile doğrudan bize ulaşabilirsiniz.",
     };
+  }
+}
+
+// Fetch all leads from Supabase for Admin Panel
+export async function getLeadsAction(): Promise<LeadRecord[]> {
+  try {
+    const supabaseAdmin = createAdminClient();
+    const supabaseClient = await createClient();
+    const client = supabaseAdmin || supabaseClient;
+
+    if (!client) {
+      return [];
+    }
+
+    const { data, error } = await client
+      .from("leads")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.warn("[getLeadsAction Error]", error.message);
+      return [];
+    }
+
+    return (data as LeadRecord[]) || [];
+  } catch (err) {
+    console.warn("[getLeadsAction Error]", err);
+    return [];
+  }
+}
+
+// Update Lead Status
+export async function updateLeadStatusAction(id: string, status: string) {
+  try {
+    const supabaseAdmin = createAdminClient();
+    const supabaseClient = await createClient();
+    const client = supabaseAdmin || supabaseClient;
+
+    if (!client) return { success: false, error: "Veritabanı bağlantısı yok." };
+
+    const { error } = await client
+      .from("leads")
+      .update({ status })
+      .eq("id", id);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+// Update Lead Admin Note
+export async function updateLeadNoteAction(id: string, admin_note: string) {
+  try {
+    const supabaseAdmin = createAdminClient();
+    const supabaseClient = await createClient();
+    const client = supabaseAdmin || supabaseClient;
+
+    if (!client) return { success: false, error: "Veritabanı bağlantısı yok." };
+
+    const { error } = await client
+      .from("leads")
+      .update({ admin_note })
+      .eq("id", id);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+// Delete Lead
+export async function deleteLeadAction(id: string) {
+  try {
+    const supabaseAdmin = createAdminClient();
+    const supabaseClient = await createClient();
+    const client = supabaseAdmin || supabaseClient;
+
+    if (!client) return { success: false, error: "Veritabanı bağlantısı yok." };
+
+    const { error } = await client.from("leads").delete().eq("id", id);
+    if (error) throw error;
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
   }
 }

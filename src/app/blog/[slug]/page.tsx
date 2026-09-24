@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Calendar, Clock, User, ChevronRight, ArrowRight, MessageCircle, Share2, ArrowLeft } from "lucide-react";
-import { DEMO_BLOG_POSTS } from "@/constants/demoData";
+import { Calendar, Clock, User, ChevronRight, ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { getWhatsAppUrl, SITE_CONFIG } from "@/constants/siteConfig";
+import { getBlogPostBySlugAction, getPublicBlogPostsAction } from "@/app/actions/blogActions";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -13,52 +13,54 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = DEMO_BLOG_POSTS.find((p) => p.slug === slug);
+  const post = await getBlogPostBySlugAction(slug);
 
   if (!post) {
-    return { title: "Yazı Bulunamadı" };
+    return { title: "Yazı Bulunamadı | Hepsen Sigorta" };
   }
 
   return {
-    title: post.title,
+    title: `${post.title} | Hepsen Sigorta Blog`,
     description: post.excerpt,
     openGraph: {
       title: post.title,
       description: post.excerpt,
       type: "article",
-      publishedTime: post.date,
-      authors: [post.author],
+      publishedTime: post.created_at,
+      authors: [post.author_name],
+      images: post.cover_image ? [post.cover_image] : undefined,
     },
   };
 }
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = DEMO_BLOG_POSTS.find((p) => p.slug === slug);
+  const post = await getBlogPostBySlugAction(slug);
 
   if (!post) {
     notFound();
   }
 
-  const relatedPosts = DEMO_BLOG_POSTS.filter((p) => p.id !== post.id).slice(0, 2);
+  const allPosts = await getPublicBlogPostsAction();
+  const relatedPosts = allPosts.filter((p) => p.id !== post.id).slice(0, 2);
 
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": post.title,
     "description": post.excerpt,
-    "image": post.featuredImage,
-    "datePublished": post.date,
+    "image": post.cover_image || `${SITE_CONFIG.meta.url}/logo-hepsen-sigorta.png`,
+    "datePublished": post.created_at,
     "author": {
       "@type": "Person",
-      "name": post.author,
+      "name": post.author_name,
     },
     "publisher": {
       "@type": "Organization",
       "name": SITE_CONFIG.name,
       "logo": {
         "@type": "ImageObject",
-        "url": `${SITE_CONFIG.meta.url}/logo.png`,
+        "url": `${SITE_CONFIG.meta.url}/logo-hepsen-sigorta.png`,
       },
     },
   };
@@ -98,32 +100,35 @@ export default async function BlogPostPage({ params }: Props) {
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 border-y border-slate-100 py-3">
               <div className="flex items-center gap-1.5 font-medium text-slate-700">
                 <User className="w-4 h-4 text-emerald-600" />
-                <span>{post.author}</span>
+                <span>{post.author_name}</span>
               </div>
               <span>•</span>
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-slate-400" />
-                <span>{post.date}</span>
+                <span>{new Date(post.created_at).toLocaleDateString("tr-TR")}</span>
               </div>
               <span>•</span>
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-slate-400" />
-                <span>{post.readingTime} okuma süresi</span>
+                <span>{post.read_time} okuma</span>
               </div>
             </div>
           </div>
 
           {/* Featured Image */}
-          <div className="relative h-72 sm:h-96 w-full rounded-3xl overflow-hidden mb-10 shadow-sm border border-slate-100">
-            <Image
-              src={post.featuredImage}
-              alt={post.title}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 850px"
-              className="object-cover"
-            />
-          </div>
+          {post.cover_image && (
+            <div className="relative h-72 sm:h-96 w-full rounded-3xl overflow-hidden mb-10 shadow-sm border border-slate-100">
+              <Image
+                src={post.cover_image}
+                alt={post.title}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 850px"
+                className="object-cover"
+                unoptimized={post.cover_image.startsWith("/uploads")}
+              />
+            </div>
+          )}
 
           {/* Article Body */}
           <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-sm sm:text-base space-y-5">
@@ -156,7 +161,7 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
               <Link href="/teklif-al" className="w-full sm:w-auto">
-                <Button variant="primary" size="md" className="w-full sm:w-auto">
+                <Button variant="navy" size="md" className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white">
                   Teklif Talep Et
                 </Button>
               </Link>
@@ -167,7 +172,7 @@ export default async function BlogPostPage({ params }: Props) {
                 className="w-full sm:w-auto"
               >
                 <Button variant="whatsapp" size="md" className="w-full sm:w-auto gap-2">
-                  <MessageCircle className="w-4 h-4 fill-white text-[#25D366]" />
+                  <MessageCircle className="w-4 h-4 fill-white" />
                   <span>WhatsApp&apos;tan Sor</span>
                 </Button>
               </a>
@@ -180,7 +185,7 @@ export default async function BlogPostPage({ params }: Props) {
               MD
             </div>
             <div className="text-xs sm:text-sm">
-              <h4 className="font-bold text-[#0B1F3A] text-base">{post.author}</h4>
+              <h4 className="font-bold text-[#0B1F3A] text-base">{post.author_name}</h4>
               <p className="text-slate-500 mb-2">{SITE_CONFIG.personTitle} • Allianz Yetkili Acentesi</p>
               <p className="text-slate-600 leading-relaxed">
                 Bireysel Emeklilik, Hayat ve Sağlık Sigortası branşlarında danışanlarına profesyonel ve tarafsız danışmanlık hizmeti sunmaktadır.
@@ -208,7 +213,7 @@ export default async function BlogPostPage({ params }: Props) {
                       </h4>
                     </div>
                     <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                      <span>{rPost.readingTime}</span>
+                      <span>{rPost.read_time}</span>
                       <span className="font-semibold text-emerald-700 flex items-center gap-1">
                         <span>Yazıyı Gör</span>
                         <ArrowRight className="w-3.5 h-3.5" />

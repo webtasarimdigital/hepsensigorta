@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -10,62 +12,49 @@ import {
   Phone,
   MessageCircle,
   PlusCircle,
-  FileSpreadsheet,
+  RefreshCw,
 } from "lucide-react";
 import { SITE_CONFIG } from "@/constants/siteConfig";
-
-const MOCK_STATS = {
-  totalLeads: 18,
-  newLeads: 4,
-  inProgressLeads: 6,
-  totalBlogs: 4,
-  activeAnnouncements: 3,
-};
-
-const RECENT_LEADS = [
-  {
-    id: "1",
-    fullName: "Mehmet Demir",
-    phone: "0532 111 22 33",
-    service: "Bireysel Emeklilik",
-    city: "İstanbul (Kadıköy)",
-    status: "Yeni",
-    date: "Bugün 14:20",
-    preferredContact: "WhatsApp",
-  },
-  {
-    id: "2",
-    fullName: "Selin Kaya",
-    phone: "0542 333 44 55",
-    service: "Tamamlayıcı Sağlık",
-    city: "İstanbul (Üsküdar)",
-    status: "Yeni",
-    date: "Bugün 11:45",
-    preferredContact: "Telefon",
-  },
-  {
-    id: "3",
-    fullName: "Burak Özkan",
-    phone: "0555 777 88 99",
-    service: "Hayat Sigortası",
-    city: "Ankara",
-    status: "İletişime Geçildi",
-    date: "Dün 17:10",
-    preferredContact: "WhatsApp",
-  },
-  {
-    id: "4",
-    fullName: "Ayşe Çetin",
-    phone: "0533 999 00 11",
-    service: "Finansal Danışmanlık",
-    city: "İzmir",
-    status: "Görüşme Yapıldı",
-    date: "Dün 15:30",
-    preferredContact: "WhatsApp",
-  },
-];
+import { getLeadsAction, LeadRecord } from "@/app/actions/leadActions";
+import { getBlogPostsAction, BlogRecord } from "@/app/actions/blogActions";
+import { getAnnouncementsAction, AnnouncementRecord } from "@/app/actions/announcementActions";
 
 export default function AdminDashboardPage() {
+  const [leads, setLeads] = useState<LeadRecord[]>([]);
+  const [blogs, setBlogs] = useState<BlogRecord[]>([]);
+  const [announcements, setAnnouncements] = useState<AnnouncementRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [leadsData, blogsData, annData] = await Promise.all([
+        getLeadsAction(),
+        getBlogPostsAction(),
+        getAnnouncementsAction(),
+      ]);
+      setLeads(leadsData);
+      setBlogs(blogsData);
+      setAnnouncements(annData);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const totalLeads = leads.length;
+  const newLeads = leads.filter((l) => l.status === "Yeni").length;
+  const inProgressLeads = leads.filter((l) => l.status === "İletişime Geçildi" || l.status === "Görüşme Yapıldı").length;
+  const totalBlogs = blogs.length;
+  const totalAnnouncements = announcements.length;
+
+  const recentLeads = leads.slice(0, 5);
+
   return (
     <div className="space-y-8">
       {/* Top Welcome Bar */}
@@ -80,6 +69,15 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={loadData}
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            <span>Verileri Yenile</span>
+          </button>
           <Link
             href="/admin/leads"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors shadow-sm"
@@ -97,8 +95,8 @@ export default function AdminDashboardPage() {
             <span className="text-xs font-semibold">Toplam Teklif</span>
             <Users className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-2xl font-black text-[#0B1F3A]">{MOCK_STATS.totalLeads}</div>
-          <span className="text-[11px] text-emerald-600 font-medium">Aktif veritabanı</span>
+          <div className="text-2xl font-black text-[#0B1F3A]">{totalLeads}</div>
+          <span className="text-[11px] text-emerald-600 font-medium">Kayıtlı başvuru</span>
         </div>
 
         <div className="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 shadow-sm">
@@ -106,7 +104,7 @@ export default function AdminDashboardPage() {
             <span className="text-xs font-bold">Yeni Talepler</span>
             <Clock className="w-4 h-4 text-emerald-700" />
           </div>
-          <div className="text-2xl font-black text-emerald-900">{MOCK_STATS.newLeads}</div>
+          <div className="text-2xl font-black text-emerald-900">{newLeads}</div>
           <span className="text-[11px] text-emerald-700 font-medium">Geri dönüş bekliyor</span>
         </div>
 
@@ -115,7 +113,7 @@ export default function AdminDashboardPage() {
             <span className="text-xs font-semibold">Görüşülenler</span>
             <CheckCircle2 className="w-4 h-4 text-blue-600" />
           </div>
-          <div className="text-2xl font-black text-[#0B1F3A]">{MOCK_STATS.inProgressLeads}</div>
+          <div className="text-2xl font-black text-[#0B1F3A]">{inProgressLeads}</div>
           <span className="text-[11px] text-blue-600 font-medium">Poliçe aşamasında</span>
         </div>
 
@@ -124,7 +122,7 @@ export default function AdminDashboardPage() {
             <span className="text-xs font-semibold">Yayınlanan Blog</span>
             <BookOpen className="w-4 h-4 text-slate-500" />
           </div>
-          <div className="text-2xl font-black text-[#0B1F3A]">{MOCK_STATS.totalBlogs}</div>
+          <div className="text-2xl font-black text-[#0B1F3A]">{totalBlogs}</div>
           <span className="text-[11px] text-slate-500 font-medium">Rehber içeriği</span>
         </div>
 
@@ -133,7 +131,7 @@ export default function AdminDashboardPage() {
             <span className="text-xs font-semibold">Aktif Duyuru</span>
             <Bell className="w-4 h-4 text-amber-600" />
           </div>
-          <div className="text-2xl font-black text-[#0B1F3A]">{MOCK_STATS.activeAnnouncements}</div>
+          <div className="text-2xl font-black text-[#0B1F3A]">{totalAnnouncements}</div>
           <span className="text-[11px] text-amber-600 font-medium">Yayında olan</span>
         </div>
       </div>
@@ -154,67 +152,88 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs sm:text-sm">
-            <thead className="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold border-b border-slate-200">
-              <tr>
-                <th className="p-4">Ad Soyad</th>
-                <th className="p-4">Hizmet</th>
-                <th className="p-4">Şehir</th>
-                <th className="p-4">Tarih</th>
-                <th className="p-4">Durum</th>
-                <th className="p-4 text-right">Hızlı İletişim</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {RECENT_LEADS.map((lead) => {
-                const cleanPhone = lead.phone.replace(/\D/g, "");
-                const waUrl = `https://wa.me/90${cleanPhone.startsWith("0") ? cleanPhone.slice(1) : cleanPhone}`;
-                return (
-                  <tr key={lead.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="p-4 font-bold text-[#0B1F3A]">{lead.fullName}</td>
-                    <td className="p-4 text-slate-700">{lead.service}</td>
-                    <td className="p-4 text-slate-500">{lead.city}</td>
-                    <td className="p-4 text-slate-400">{lead.date}</td>
-                    <td className="p-4">
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          lead.status === "Yeni"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : lead.status === "İletişime Geçildi"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-slate-100 text-slate-700"
-                        }`}
-                      >
-                        {lead.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <a
-                          href={`tel:${lead.phone}`}
-                          className="p-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-[#0B1F3A] hover:text-white transition-colors"
-                          title="Telefonla Ara"
+        {loading ? (
+          <div className="py-16 text-center text-xs text-slate-400">Veriler yükleniyor...</div>
+        ) : recentLeads.length === 0 ? (
+          <div className="py-16 text-center px-4 space-y-2">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+              <Users className="w-6 h-6" />
+            </div>
+            <p className="text-sm font-bold text-[#0B1F3A]">Henüz Gelen Teklif Talebi Yok</p>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Müşteriler web sitenizdeki formları doldurduğunda burada otomatik görünecektir.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs sm:text-sm">
+              <thead className="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold border-b border-slate-200">
+                <tr>
+                  <th className="p-4">Ad Soyad</th>
+                  <th className="p-4">Hizmet</th>
+                  <th className="p-4">Şehir</th>
+                  <th className="p-4">Tarih</th>
+                  <th className="p-4">Durum</th>
+                  <th className="p-4 text-right">Hızlı İletişim</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {recentLeads.map((lead) => {
+                  const cleanPhone = lead.phone.replace(/\D/g, "");
+                  const waUrl = `https://wa.me/90${cleanPhone.startsWith("0") ? cleanPhone.slice(1) : cleanPhone}`;
+                  const formattedDate = new Date(lead.created_at).toLocaleDateString("tr-TR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+
+                  return (
+                    <tr key={lead.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="p-4 font-bold text-[#0B1F3A]">{lead.full_name}</td>
+                      <td className="p-4 text-slate-700">{lead.service}</td>
+                      <td className="p-4 text-slate-500">{lead.city || "—"}</td>
+                      <td className="p-4 text-slate-400">{formattedDate}</td>
+                      <td className="p-4">
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                            lead.status === "Yeni"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : lead.status === "İletişime Geçildi"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-slate-100 text-slate-700"
+                          }`}
                         >
-                          <Phone className="w-3.5 h-3.5" />
-                        </a>
-                        <a
-                          href={waUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-[#25D366] hover:text-white transition-colors"
-                          title="WhatsApp Mesajı At"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                          {lead.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <a
+                            href={`tel:${lead.phone}`}
+                            className="p-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-[#0B1F3A] hover:text-white transition-colors"
+                            title="Telefonla Ara"
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                          </a>
+                          <a
+                            href={waUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-[#25D366] hover:text-white transition-colors"
+                            title="WhatsApp Mesajı At"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
