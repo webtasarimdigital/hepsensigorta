@@ -5,11 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, ShieldCheck, FileText } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { SITE_CONFIG, getWhatsAppUrl } from "@/constants/siteConfig";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 import { cn } from "@/lib/utils";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const { getWhatsAppUrl } = useSiteSettings();
 
   // If in admin panel, don't show the public mobile navigation
   if (pathname.startsWith("/admin")) {

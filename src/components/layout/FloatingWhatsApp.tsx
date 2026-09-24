@@ -4,11 +4,12 @@ import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { SITE_CONFIG, getWhatsAppUrl } from "@/constants/siteConfig";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 
 export function FloatingWhatsApp() {
   const pathname = usePathname();
   const [showTooltip, setShowTooltip] = useState(true);
+  const { getWhatsAppUrl } = useSiteSettings();
 
   if (pathname.startsWith("/admin")) {
     return null;

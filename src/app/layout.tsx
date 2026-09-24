@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { SITE_CONFIG } from "@/constants/siteConfig";
+import { getSiteSettingsAction } from "@/app/actions/settingsActions";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -82,35 +83,37 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getSiteSettingsAction();
+
   const jsonLdGraph = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": ["InsuranceAgency", "FinancialService"],
         "@id": `${SITE_CONFIG.meta.url}/#agency`,
-        "name": SITE_CONFIG.name,
-        "legalName": SITE_CONFIG.legalName,
+        "name": settings.name,
+        "legalName": settings.legalName,
         "alternateName": [
           "Allianz Yetkili Acentesi Hepsen Sigorta",
           "Hepsen Sigorta Aracılık Hizmetleri",
           "Hepsen Sigorta Kadıköy"
         ],
-        "slogan": SITE_CONFIG.slogan,
+        "slogan": settings.slogan,
         "description": SITE_CONFIG.meta.description,
         "url": SITE_CONFIG.meta.url,
         "logo": `${SITE_CONFIG.meta.url}/logo-hepsen-sigorta.png`,
         "image": `${SITE_CONFIG.meta.url}/logo-hepsen-sigorta.png`,
-        "telephone": `+${SITE_CONFIG.phoneRaw}`,
-        "email": SITE_CONFIG.emailPrimary,
+        "telephone": `+${settings.phoneRaw}`,
+        "email": settings.emailPrimary,
         "priceRange": "$$",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Kozyatağı Mah. Bayer Cad. Şakacı Sk. Baytur Kozyatağı Konutları E Blok D:3",
+          "streetAddress": settings.addressFull,
           "addressLocality": "Kadıköy",
           "addressRegion": "İstanbul",
           "postalCode": "34742",
@@ -144,15 +147,15 @@ export default function RootLayout({
         ],
         "founder": {
           "@type": "Person",
-          "name": SITE_CONFIG.personName,
-          "jobTitle": SITE_CONFIG.personTitle,
+          "name": settings.personName,
+          "jobTitle": settings.personTitle,
           "worksFor": {
             "@id": `${SITE_CONFIG.meta.url}/#agency`
           }
         },
         "sameAs": [
           "https://instagram.com/hepsensigorta",
-          `https://wa.me/${SITE_CONFIG.whatsappRaw}`
+          `https://wa.me/${settings.whatsappRaw}`
         ],
         "hasOfferCatalog": {
           "@type": "OfferCatalog",
@@ -220,7 +223,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen font-sans antialiased text-[#172033] bg-white selection:bg-emerald-100 selection:text-emerald-900">
-        <PublicShell>{children}</PublicShell>
+        <PublicShell initialSettings={settings}>{children}</PublicShell>
       </body>
     </html>
   );

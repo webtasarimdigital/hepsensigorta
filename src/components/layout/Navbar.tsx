@@ -17,7 +17,8 @@ import {
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
-import { SITE_CONFIG, getWhatsAppUrl, getPhoneHref } from "@/constants/siteConfig";
+import { SITE_CONFIG } from "@/constants/siteConfig";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 import { cn } from "@/lib/utils";
 
 function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -75,6 +76,7 @@ const MAIN_LINKS = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const { settings, getWhatsAppUrl, getPhoneHref } = useSiteSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -325,7 +327,7 @@ export function Navbar() {
               className="text-xs font-semibold text-[#0B1F3A] flex items-center gap-1"
             >
               <Phone className="w-3.5 h-3.5 text-emerald-600" />
-              {SITE_CONFIG.phone}
+              {settings.phone}
             </a>
           </div>
 

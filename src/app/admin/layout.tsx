@@ -18,7 +18,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { logoutAdminAction } from "@/app/actions/adminAuthActions";
-import { SITE_CONFIG } from "@/constants/siteConfig";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -54,6 +54,7 @@ const NAV_ITEMS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { settings } = useSiteSettings();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -146,10 +147,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-white truncate">
-                  {SITE_CONFIG.personName}
+                  {settings.personName}
                 </div>
                 <div className="text-[10px] text-emerald-400 truncate">
-                  {SITE_CONFIG.personTitle}
+                  {settings.personTitle}
                 </div>
               </div>
             </div>

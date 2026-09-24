@@ -130,3 +130,64 @@ ON storage.objects FOR ALL
 TO public
 USING (bucket_id = 'uploads')
 WITH CHECK (bucket_id = 'uploads');
+
+
+-- 5. ACENTE VE SİTE AYARLARI TABLOSU (SITE_SETTINGS)
+CREATE TABLE IF NOT EXISTS public.site_settings (
+    id TEXT PRIMARY KEY DEFAULT 'main',
+    name TEXT DEFAULT 'Hepsen Sigorta',
+    legal_name TEXT DEFAULT 'Hepsen Sigorta Aracılık Hizmetleri',
+    slogan TEXT DEFAULT 'Seni Düşünen Sigorta',
+    person_name TEXT DEFAULT 'Merve DOĞAN',
+    person_title TEXT DEFAULT 'Fon Yöneticisi',
+    phone TEXT DEFAULT '0545 710 14 19',
+    landline TEXT DEFAULT '0850 223 98 66',
+    whatsapp TEXT DEFAULT '0545 710 14 19',
+    email_primary TEXT DEFAULT 'merve.dogan@hepsensigorta.com',
+    email_contact TEXT DEFAULT 'info@hepsensigorta.com',
+    address_full TEXT DEFAULT 'Kozyatağı Mah. Bayer Cad. Şakacı Sk. Baytur Kozyatağı Konutları E Blok D:3, Kadıköy / İstanbul',
+    working_hours TEXT DEFAULT 'Pazartesi - Cuma: 09:00 - 18:30 | Cumartesi: 09:30 - 14:00',
+    tobb_levha_no TEXT DEFAULT 'G1234-5678',
+    vergi_dairesi TEXT DEFAULT 'Kozyatağı V.D. / 1234567890',
+    mersis_no TEXT DEFAULT '0123456789000001',
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Site Settings RLS İlkeleri
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read on site_settings" ON public.site_settings;
+CREATE POLICY "Allow public read on site_settings"
+ON public.site_settings FOR SELECT
+TO public
+USING (true);
+
+DROP POLICY IF EXISTS "Allow all on site_settings" ON public.site_settings;
+CREATE POLICY "Allow all on site_settings"
+ON public.site_settings FOR ALL
+TO public
+USING (true)
+WITH CHECK (true);
+
+-- İlk varsayılan kaydı oluştur
+INSERT INTO public.site_settings (
+    id, name, legal_name, slogan, person_name, person_title, phone, landline, whatsapp, email_primary, email_contact, address_full, working_hours, tobb_levha_no, vergi_dairesi, mersis_no
+) VALUES (
+    'main',
+    'Hepsen Sigorta',
+    'Hepsen Sigorta Aracılık Hizmetleri',
+    'Seni Düşünen Sigorta',
+    'Merve DOĞAN',
+    'Fon Yöneticisi',
+    '0545 710 14 19',
+    '0850 223 98 66',
+    '0545 710 14 19',
+    'merve.dogan@hepsensigorta.com',
+    'info@hepsensigorta.com',
+    'Kozyatağı Mah. Bayer Cad. Şakacı Sk. Baytur Kozyatağı Konutları E Blok D:3, Kadıköy / İstanbul',
+    'Pazartesi - Cuma: 09:00 - 18:30 | Cumartesi: 09:30 - 14:00',
+    'G1234-5678',
+    'Kozyatağı V.D. / 1234567890',
+    '0123456789000001'
+) ON CONFLICT (id) DO NOTHING;
+

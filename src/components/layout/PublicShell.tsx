@@ -8,18 +8,29 @@ import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { FloatingWhatsApp } from "@/components/layout/FloatingWhatsApp";
 import { CookieConsent } from "@/components/layout/CookieConsent";
+import { SiteSettingsProvider } from "@/context/SiteSettingsContext";
+import { SiteSettingsData } from "@/types/settings";
 
-export function PublicShell({ children }: { children: React.ReactNode }) {
+export function PublicShell({
+  initialSettings,
+  children,
+}: {
+  initialSettings?: SiteSettingsData;
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
 
-  // When inside /admin, completely omit the public site header, footer, topbar, mobile nav, floating widgets
   if (isAdmin) {
-    return <div className="min-h-screen bg-slate-900 text-slate-100">{children}</div>;
+    return (
+      <SiteSettingsProvider initialSettings={initialSettings}>
+        <div className="min-h-screen bg-slate-900 text-slate-100">{children}</div>
+      </SiteSettingsProvider>
+    );
   }
 
   return (
-    <>
+    <SiteSettingsProvider initialSettings={initialSettings}>
       <TopBar />
       <Navbar />
       <main className="flex-1">{children}</main>
@@ -27,6 +38,6 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       <MobileBottomNav />
       <FloatingWhatsApp />
       <CookieConsent />
-    </>
+    </SiteSettingsProvider>
   );
 }

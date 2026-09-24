@@ -1,10 +1,15 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { Phone, Mail, MapPin, Clock, ShieldCheck, ArrowRight, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, ShieldCheck, ArrowRight, Building, FileText } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import { SITE_CONFIG, getPhoneHref, getLandlineHref, getEmailHref, getWhatsAppUrl } from "@/constants/siteConfig";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
+import { SITE_CONFIG } from "@/constants/siteConfig";
 
 export function Footer() {
+  const { settings, getPhoneHref, getLandlineHref, getEmailHref } = useSiteSettings();
+
   return (
     <footer className="bg-[#0B1F3A] text-slate-300 pt-16 pb-24 md:pb-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,7 +19,7 @@ export function Footer() {
           <div className="lg:col-span-2 space-y-4">
             <Logo variant="light" size="md" />
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
-              Hepsen Sigorta, Bireysel Emeklilik Sistemi (BES), Hayat Sigortası, Sağlık Sigortası ve Tasarruf Planlaması alanlarında bireye ve aileye özel çözümler sunan Allianz Yetkili Acentesidir.
+              {settings.name}, Bireysel Emeklilik Sistemi (BES), Hayat Sigortası, Sağlık Sigortası ve Tasarruf Planlaması alanlarında bireye ve aileye özel çözümler sunan Allianz Yetkili Acentesidir.
             </p>
 
             {/* Allianz Authorized Agency Card */}
@@ -30,9 +35,9 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Merve Doğan Info */}
+            {/* Consultant Info */}
             <div className="text-xs text-slate-400 pt-1">
-              <span className="text-white font-medium">{SITE_CONFIG.personName}</span> — {SITE_CONFIG.personTitle}
+              <span className="text-white font-medium">{settings.personName}</span> — {settings.personTitle}
             </div>
           </div>
 
@@ -133,7 +138,7 @@ export function Footer() {
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-1" />
                 <span className="text-slate-400 text-xs leading-relaxed">
-                  {SITE_CONFIG.address.full}
+                  {settings.addressFull}
                 </span>
               </div>
 
@@ -143,7 +148,7 @@ export function Footer() {
                   href={getPhoneHref()}
                   className="text-white hover:text-emerald-400 transition-colors font-medium text-xs sm:text-sm"
                 >
-                  {SITE_CONFIG.phone}
+                  {settings.phone}
                 </a>
               </div>
 
@@ -153,26 +158,74 @@ export function Footer() {
                   href={getLandlineHref()}
                   className="text-slate-300 hover:text-white transition-colors text-xs"
                 >
-                  Sabit / Çağrı: {SITE_CONFIG.landline}
+                  Sabit / Çağrı: {settings.landline}
                 </a>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
                 <a
-                  href={getEmailHref(SITE_CONFIG.emailPrimary)}
+                  href={getEmailHref(settings.emailPrimary)}
                   className="text-slate-300 hover:text-emerald-400 transition-colors text-xs truncate max-w-[200px]"
                 >
-                  {SITE_CONFIG.emailPrimary}
+                  {settings.emailPrimary}
                 </a>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-slate-400 shrink-0" />
                 <span className="text-slate-400 text-xs">
-                  {SITE_CONFIG.workingHours}
+                  {settings.workingHours}
                 </span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Official Agency Registry & Levha Information */}
+        <div className="pt-8 pb-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.04] border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-white block">
+                  Resmi Yetkili Acente Sicil & Levha Bilgileri
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  {settings.legalName} • Allianz Sigorta A.Ş. & Allianz Hayat ve Emeklilik A.Ş. Yetkili Acentesidir
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
+              {settings.tobbLevhaNo && (
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400">TOBB Levha No:</span>
+                  <span className="font-bold text-white tracking-wide bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+                    {settings.tobbLevhaNo}
+                  </span>
+                </div>
+              )}
+              {settings.vergiDairesi && (
+                <div className="flex items-center gap-2">
+                  <Building className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-slate-400">Vergi Dairesi & No:</span>
+                  <span className="font-semibold text-white">
+                    {settings.vergiDairesi}
+                  </span>
+                </div>
+              )}
+              {settings.mersisNo && (
+                <div className="flex items-center gap-2">
+                  <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-slate-400">MERSİS:</span>
+                  <span className="font-mono text-white">
+                    {settings.mersisNo}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -180,13 +233,13 @@ export function Footer() {
         {/* Regulatory Disclaimer */}
         <div className="py-6 border-b border-slate-800/80 text-[11px] text-slate-400/90 leading-relaxed">
           <p>
-            <strong>Yasal Bilgilendirme:</strong> Hepsen Sigorta Aracılık Hizmetleri, Allianz Sigorta A.Ş. ve Allianz Hayat ve Emeklilik A.Ş. yetkili acentesidir. Bu sitede sunulan Bireysel Emeklilik, Hayat ve Sağlık sigortası içerikleri genel bilgilendirme amaçlı olup nihai teminatlar poliçe özel ve genel şartlarında belirtilmiştir. Sitede yer alan tasarruf ve bütçe planlaması içerikleri Sermaye Piyasası Kurulu mevzuatı uyarınca yatırım danışmanlığı veya portföy yöneticiliği faaliyeti teşkil etmez.
+            <strong>Yasal Bilgilendirme:</strong> {settings.legalName}, Allianz Sigorta A.Ş. ve Allianz Hayat ve Emeklilik A.Ş. yetkili acentesidir. Bu sitede sunulan Bireysel Emeklilik, Hayat ve Sağlık sigortası içerikleri genel bilgilendirme amaçlı olup nihai teminatlar poliçe özel ve genel şartlarında belirtilmiştir. Sitede yer alan tasarruf ve bütçe planlaması içerikleri Sermaye Piyasası Kurulu mevzuatı uyarınca yatırım danışmanlığı veya portföy yöneticiliği faaliyeti teşkil etmez.
           </p>
         </div>
 
         {/* Bottom Bar: Copyright & Legal Links */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <p>© 2026 Hepsen Sigorta. Tüm hakları saklıdır.</p>
+          <p>© 2026 {settings.name}. Tüm hakları saklıdır.</p>
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <Link href="/kvkk" className="hover:text-white transition-colors">
               KVKK Aydınlatma Metni

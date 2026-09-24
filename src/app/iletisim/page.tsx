@@ -14,11 +14,12 @@ import {
   ShieldCheck,
   Building,
 } from "lucide-react";
-import { SITE_CONFIG, getPhoneHref, getLandlineHref, getEmailHref, getWhatsAppUrl } from "@/constants/siteConfig";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 import { Button } from "@/components/ui/Button";
 import { submitLeadAction } from "@/app/actions/leadActions";
 
 export default function IletisimPage() {
+  const { settings, getPhoneHref, getLandlineHref, getEmailHref, getWhatsAppUrl } = useSiteSettings();
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -93,8 +94,8 @@ export default function IletisimPage() {
               <div className="bg-white rounded-3xl p-7 border border-slate-200/90 shadow-sm space-y-5">
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                   <div>
-                    <h3 className="text-xl font-bold text-[#0B1F3A]">{SITE_CONFIG.name}</h3>
-                    <p className="text-xs text-slate-500">{SITE_CONFIG.personName} • {SITE_CONFIG.personTitle}</p>
+                    <h3 className="text-xl font-bold text-[#0B1F3A]">{settings.name}</h3>
+                    <p className="text-xs text-slate-500">{settings.personName} • {settings.personTitle}</p>
                   </div>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                     Allianz Yetkili Acentesi
@@ -107,7 +108,7 @@ export default function IletisimPage() {
                     <div>
                       <span className="font-semibold block text-slate-900">Ofis Adresi</span>
                       <span className="text-xs text-slate-600 leading-relaxed block">
-                        {SITE_CONFIG.address.full}
+                        {settings.addressFull}
                       </span>
                     </div>
                   </div>
@@ -117,7 +118,7 @@ export default function IletisimPage() {
                     <div>
                       <span className="font-semibold block text-slate-900">Yetkili Telefon</span>
                       <a href={getPhoneHref()} className="text-xs text-slate-600 hover:text-emerald-700 font-medium">
-                        {SITE_CONFIG.phone}
+                        {settings.phone}
                       </a>
                     </div>
                   </div>
@@ -127,7 +128,7 @@ export default function IletisimPage() {
                     <div>
                       <span className="font-semibold block text-slate-900">Sabit / Çağrı Hattı</span>
                       <a href={getLandlineHref()} className="text-xs text-slate-600 hover:text-emerald-700">
-                        {SITE_CONFIG.landline}
+                        {settings.landline}
                       </a>
                     </div>
                   </div>
@@ -136,8 +137,8 @@ export default function IletisimPage() {
                     <Mail className="w-5 h-5 text-emerald-600 shrink-0" />
                     <div>
                       <span className="font-semibold block text-slate-900">E-posta</span>
-                      <a href={getEmailHref(SITE_CONFIG.emailPrimary)} className="text-xs text-slate-600 hover:text-emerald-700">
-                        {SITE_CONFIG.emailPrimary}
+                      <a href={getEmailHref(settings.emailPrimary)} className="text-xs text-slate-600 hover:text-emerald-700">
+                        {settings.emailPrimary}
                       </a>
                     </div>
                   </div>
@@ -146,10 +147,40 @@ export default function IletisimPage() {
                     <Clock className="w-5 h-5 text-slate-400 shrink-0" />
                     <div>
                       <span className="font-semibold block text-slate-900">Çalışma Saatleri</span>
-                      <span className="text-xs text-slate-600">{SITE_CONFIG.workingHours}</span>
+                      <span className="text-xs text-slate-600">{settings.workingHours}</span>
                     </div>
                   </div>
                 </div>
+
+                {/* Official Agency Registry & Levha Information */}
+                {(settings.tobbLevhaNo || settings.vergiDairesi || settings.mersisNo) && (
+                  <div className="pt-4 border-t border-slate-100 space-y-2.5">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#0B1F3A]">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Resmi Acente Levha & Sicil Bilgileri</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      {settings.tobbLevhaNo && (
+                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                          <span className="text-[10px] text-slate-400 block font-medium">TOBB Levha No</span>
+                          <span className="font-bold text-[#0B1F3A]">{settings.tobbLevhaNo}</span>
+                        </div>
+                      )}
+                      {settings.vergiDairesi && (
+                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                          <span className="text-[10px] text-slate-400 block font-medium">Vergi Dairesi & Sicil</span>
+                          <span className="font-semibold text-slate-700">{settings.vergiDairesi}</span>
+                        </div>
+                      )}
+                      {settings.mersisNo && (
+                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 sm:col-span-2">
+                          <span className="text-[10px] text-slate-400 block font-medium">MERSİS Numarası</span>
+                          <span className="font-mono text-slate-800">{settings.mersisNo}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Direct Action Buttons */}
                 <div className="pt-2 flex flex-col gap-2.5">
@@ -167,7 +198,7 @@ export default function IletisimPage() {
                   <a href={getPhoneHref()}>
                     <Button variant="outline" size="md" className="w-full justify-center gap-2">
                       <Phone className="w-4 h-4" />
-                      <span>Hemen Ara: {SITE_CONFIG.phone}</span>
+                      <span>Hemen Ara: {settings.phone}</span>
                     </Button>
                   </a>
                 </div>

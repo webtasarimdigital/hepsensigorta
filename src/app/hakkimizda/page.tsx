@@ -14,6 +14,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { SITE_CONFIG, getWhatsAppUrl, getPhoneHref, getEmailHref } from "@/constants/siteConfig";
+import { getSiteSettingsAction } from "@/app/actions/settingsActions";
 import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
@@ -21,7 +22,8 @@ export const metadata: Metadata = {
   description: "Hepsen Sigorta, Fon Yöneticisi Merve Doğan liderliğinde Allianz Yetkili Acentesi olarak Kadıköy Kozyatağı'nda ve tüm Türkiye'de hizmet vermektedir.",
 };
 
-export default function HakkimizdaPage() {
+export default async function HakkimizdaPage() {
+  const settings = await getSiteSettingsAction();
   return (
     <>
       {/* Hero Section */}
@@ -63,8 +65,8 @@ export default function HakkimizdaPage() {
                 <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-1">
                   Acente Yetkilisi
                 </span>
-                <h3 className="text-2xl font-black text-white">{SITE_CONFIG.personName}</h3>
-                <p className="text-sm text-slate-300 mb-6">{SITE_CONFIG.personTitle}</p>
+                <h3 className="text-2xl font-black text-white">{settings.personName}</h3>
+                <p className="text-sm text-slate-300 mb-6">{settings.personTitle}</p>
 
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2 mb-6 text-xs text-slate-300 leading-relaxed">
                   <p>
@@ -75,15 +77,15 @@ export default function HakkimizdaPage() {
                 <div className="space-y-2 text-xs border-t border-white/10 pt-4">
                   <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-emerald-400" />
-                    <span>{SITE_CONFIG.phone}</span>
+                    <span>{settings.phone}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4 text-emerald-400" />
-                    <span>{SITE_CONFIG.emailPrimary}</span>
+                    <span>{settings.emailPrimary}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span className="leading-snug">{SITE_CONFIG.address.full}</span>
+                    <span className="leading-snug">{settings.addressFull}</span>
                   </div>
                 </div>
               </div>

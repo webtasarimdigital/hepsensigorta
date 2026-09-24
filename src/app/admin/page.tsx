@@ -14,12 +14,13 @@ import {
   PlusCircle,
   RefreshCw,
 } from "lucide-react";
-import { SITE_CONFIG } from "@/constants/siteConfig";
+import { useSiteSettings } from "@/context/SiteSettingsContext";
 import { getLeadsAction, LeadRecord } from "@/app/actions/leadActions";
 import { getBlogPostsAction, BlogRecord } from "@/app/actions/blogActions";
 import { getAnnouncementsAction, AnnouncementRecord } from "@/app/actions/announcementActions";
 
 export default function AdminDashboardPage() {
+  const { settings } = useSiteSettings();
   const [leads, setLeads] = useState<LeadRecord[]>([]);
   const [blogs, setBlogs] = useState<BlogRecord[]>([]);
   const [announcements, setAnnouncements] = useState<AnnouncementRecord[]>([]);
@@ -61,7 +62,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
         <div>
           <h1 className="text-2xl font-black text-[#0B1F3A]">
-            Hoş Geldiniz, {SITE_CONFIG.personName}
+            Hoş Geldiniz, {settings.personName}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Hepsen Sigorta Acente Yönetim Paneli — Güncel Teklif ve İçerik Özeti
