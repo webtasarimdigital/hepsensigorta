@@ -46,13 +46,13 @@ export default function BireyselEmeklilikPage() {
             "@type": "ListItem",
             "position": 1,
             "name": "Ana Sayfa",
-            "item": "https://hepsensigorta.com"
+            "item": "https://www.hepsensigorta.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Bireysel Emeklilik",
-            "item": "https://hepsensigorta.com/bireysel-emeklilik"
+            "item": "https://www.hepsensigorta.com/bireysel-emeklilik"
           }
         ]
       },
@@ -63,7 +63,7 @@ export default function BireyselEmeklilikPage() {
         "provider": {
           "@type": "InsuranceAgency",
           "name": "Hepsen Sigorta",
-          "url": "https://hepsensigorta.com"
+          "url": "https://www.hepsensigorta.com"
         },
         "description": "Devlet katkısı avantajı, 18 yaş altı çocuklara BES ve uzman fon dağılım danışmanlığı.",
         "areaServed": "Türkiye"

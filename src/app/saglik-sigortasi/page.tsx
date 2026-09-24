@@ -42,13 +42,13 @@ export default function SaglikSigortasiPage() {
             "@type": "ListItem",
             "position": 1,
             "name": "Ana Sayfa",
-            "item": "https://hepsensigorta.com"
+            "item": "https://www.hepsensigorta.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Sağlık Sigortası",
-            "item": "https://hepsensigorta.com/saglik-sigortasi"
+            "item": "https://www.hepsensigorta.com/saglik-sigortasi"
           }
         ]
       },
@@ -59,7 +59,7 @@ export default function SaglikSigortasiPage() {
         "provider": {
           "@type": "InsuranceAgency",
           "name": "Hepsen Sigorta",
-          "url": "https://hepsensigorta.com"
+          "url": "https://www.hepsensigorta.com"
         },
         "description": "Özel hastanelerde SGK fark ücreti ödemeden modern tedavi imkanı.",
         "areaServed": "Türkiye"

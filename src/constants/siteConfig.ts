@@ -91,7 +91,7 @@ export const SITE_CONFIG: SiteConfig = {
       "Allianz Yetkili Acentesi",
       "Merve Doğan Fon Yöneticisi"
     ],
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://hepsensigorta.com",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.hepsensigorta.com",
   },
 };
 

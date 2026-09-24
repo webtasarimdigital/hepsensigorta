@@ -41,13 +41,13 @@ export default function FinansalDanismanlikPage() {
             "@type": "ListItem",
             "position": 1,
             "name": "Ana Sayfa",
-            "item": "https://hepsensigorta.com"
+            "item": "https://www.hepsensigorta.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Finansal Danışmanlık",
-            "item": "https://hepsensigorta.com/finansal-danismanlik"
+            "item": "https://www.hepsensigorta.com/finansal-danismanlik"
           }
         ]
       },
@@ -58,7 +58,7 @@ export default function FinansalDanismanlikPage() {
         "provider": {
           "@type": "InsuranceAgency",
           "name": "Hepsen Sigorta",
-          "url": "https://hepsensigorta.com"
+          "url": "https://www.hepsensigorta.com"
         },
         "description": "Uzun vadeli tasarruf planlaması, emeklilik hedefleri ve aile bütçesi risk yönetimi.",
         "areaServed": "Türkiye"
