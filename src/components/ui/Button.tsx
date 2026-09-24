@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "navy" | "secondary" | "outline" | "ghost" | "whatsapp";
+  variant?: "primary" | "navy" | "white" | "outline-white" | "secondary" | "outline" | "ghost" | "whatsapp";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
 }
@@ -27,6 +27,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       // Primary: Signature Green CTA
       primary:
         "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/25 focus:ring-emerald-500 font-semibold",
+      // White: High contrast crisp white CTA for dark backgrounds
+      white:
+        "bg-white hover:bg-slate-100 text-[#0B1F3A] border-2 border-white shadow-xl shadow-black/25 focus:ring-white font-bold",
+      // Outline-White: Transparent with prominent white border
+      "outline-white":
+        "border-2 border-white text-white hover:bg-white hover:text-[#0B1F3A] bg-white/10 backdrop-blur-sm shadow-md font-bold focus:ring-white",
       // Navy: Corporate Navy
       navy:
         "bg-[#0B1F3A] hover:bg-[#162E52] text-white shadow-sm shadow-navy/20 focus:ring-[#0B1F3A] font-semibold",
