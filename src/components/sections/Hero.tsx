@@ -53,7 +53,7 @@ export function Hero() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
               <Link href="/teklif-al" className="w-full sm:w-auto">
-                <Button variant="primary" size="lg" className="w-full sm:w-auto gap-2.5 text-base shadow-lg shadow-emerald-900/30">
+                <Button variant="navy" size="lg" className="w-full sm:w-auto gap-2.5 text-base shadow-lg shadow-[#0B1F3A]/30">
                   <span>Hızlı Teklif Al</span>
                   <ArrowRight className="w-5 h-5" />
                 </Button>

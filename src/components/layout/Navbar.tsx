@@ -115,11 +115,11 @@ export function Navbar() {
       className={cn(
         "sticky top-0 z-40 w-full transition-all duration-300",
         scrolled
-          ? "bg-white/98 backdrop-blur-md shadow-sm border-b border-slate-200/80 py-1.5"
-          : "bg-white border-b border-slate-100 py-2 sm:py-2.5"
+          ? "bg-white/98 backdrop-blur-md shadow-sm border-b border-slate-200/80 py-2"
+          : "bg-white border-b border-slate-100 py-2.5 sm:py-3"
       )}
     >
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
         {/* Brand Logo (Crisp, High-res & Prominent) */}
         <Logo size="md" />
 
@@ -272,7 +272,7 @@ export function Navbar() {
           {/* Quick Quote CTA */}
           <Link href="/teklif-al" className="shrink-0">
             <Button
-              variant="primary"
+              variant="navy"
               size="md"
               className="gap-2 shadow-sm font-semibold whitespace-nowrap text-xs xl:text-sm px-4 py-2.5 rounded-xl"
             >
@@ -400,7 +400,7 @@ export function Navbar() {
 
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2.5">
             <Link href="/teklif-al" className="w-full">
-              <Button variant="primary" size="lg" className="w-full justify-center">
+              <Button variant="navy" size="lg" className="w-full justify-center">
                 Hızlı Teklif Al
               </Button>
             </Link>
