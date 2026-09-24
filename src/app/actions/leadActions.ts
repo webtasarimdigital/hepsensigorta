@@ -203,17 +203,16 @@ export async function getLeadsAction(): Promise<LeadRecord[]> {
   }
 
   // 2. Read from Persistent Cloud Storage
-  const localList = readLocalLeads();
   try {
-    const cloudLeads = await readCloudJson<LeadRecord[]>("leads.json", localList);
-    if (cloudLeads && cloudLeads.length > 0) {
+    const cloudLeads = await readCloudJson<LeadRecord[] | null>("leads.json", null);
+    if (Array.isArray(cloudLeads)) {
       return cloudLeads;
     }
   } catch (cloudErr) {
     console.warn("[getLeadsAction Cloud Notice]", cloudErr);
   }
 
-  return localList;
+  return readLocalLeads();
 }
 
 // Update Lead Status

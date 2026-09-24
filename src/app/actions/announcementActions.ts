@@ -39,32 +39,16 @@ function getTmpJsonPath(): string {
 }
 
 function readLocalAnnouncements(): AnnouncementRecord[] {
-  let list: AnnouncementRecord[] = [];
   try {
     const filePath = getLocalJsonPath();
     if (fs.existsSync(filePath)) {
       const content = fs.readFileSync(filePath, "utf-8");
-      list = JSON.parse(content) as AnnouncementRecord[];
+      return JSON.parse(content) as AnnouncementRecord[];
     }
   } catch (err) {
     console.warn("[readLocalAnnouncements Error]", err);
   }
-
-  try {
-    const tmpPath = getTmpJsonPath();
-    if (fs.existsSync(tmpPath)) {
-      const content = fs.readFileSync(tmpPath, "utf-8");
-      const tmpList = JSON.parse(content) as AnnouncementRecord[];
-      const existingIds = new Set(list.map((l) => l.id));
-      for (const item of tmpList) {
-        if (!existingIds.has(item.id)) list.push(item);
-      }
-    }
-  } catch (tmpErr) {
-    console.warn("[readTmpAnnouncements Error]", tmpErr);
-  }
-
-  return list;
+  return [];
 }
 
 function writeLocalAnnouncements(list: AnnouncementRecord[]): void {
@@ -73,13 +57,6 @@ function writeLocalAnnouncements(list: AnnouncementRecord[]): void {
     fs.writeFileSync(filePath, JSON.stringify(list, null, 2), "utf-8");
   } catch (err) {
     console.warn("[writeLocalAnnouncements Error]", err);
-  }
-
-  try {
-    const tmpPath = getTmpJsonPath();
-    fs.writeFileSync(tmpPath, JSON.stringify(list, null, 2), "utf-8");
-  } catch (tmpErr) {
-    console.warn("[writeTmpAnnouncements Error]", tmpErr);
   }
 }
 
@@ -103,18 +80,17 @@ export async function getAnnouncementsAction(): Promise<AnnouncementRecord[]> {
   }
 
   // 2. Read from Persistent Cloud Storage (Supabase Storage data/announcements.json)
-  const local = readLocalAnnouncements();
   try {
-    const cloudAnnouncements = await readCloudJson<AnnouncementRecord[]>("announcements.json", local);
-    if (cloudAnnouncements && cloudAnnouncements.length > 0) {
+    const cloudAnnouncements = await readCloudJson<AnnouncementRecord[] | null>("announcements.json", null);
+    if (Array.isArray(cloudAnnouncements)) {
       return cloudAnnouncements;
     }
   } catch (cloudErr) {
     console.warn("[getAnnouncementsAction Cloud Notice]", cloudErr);
   }
 
-  // 3. Fallback to local storage
-  return local;
+  // 3. Fallback to local storage only if cloud is unreachable
+  return readLocalAnnouncements();
 }
 
 // Get public announcements

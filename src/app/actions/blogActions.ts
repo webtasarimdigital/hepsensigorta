@@ -56,32 +56,16 @@ function getTmpJsonPath(): string {
 }
 
 function readLocalBlogs(): BlogRecord[] {
-  let list: BlogRecord[] = [];
   try {
     const filePath = getLocalJsonPath();
     if (fs.existsSync(filePath)) {
       const content = fs.readFileSync(filePath, "utf-8");
-      list = JSON.parse(content) as BlogRecord[];
+      return JSON.parse(content) as BlogRecord[];
     }
   } catch (err) {
     console.warn("[readLocalBlogs Error]", err);
   }
-
-  try {
-    const tmpPath = getTmpJsonPath();
-    if (fs.existsSync(tmpPath)) {
-      const content = fs.readFileSync(tmpPath, "utf-8");
-      const tmpList = JSON.parse(content) as BlogRecord[];
-      const existingIds = new Set(list.map((l) => l.id));
-      for (const item of tmpList) {
-        if (!existingIds.has(item.id)) list.push(item);
-      }
-    }
-  } catch (tmpErr) {
-    console.warn("[readTmpBlogs Error]", tmpErr);
-  }
-
-  return list;
+  return [];
 }
 
 function writeLocalBlogs(list: BlogRecord[]): void {
@@ -90,13 +74,6 @@ function writeLocalBlogs(list: BlogRecord[]): void {
     fs.writeFileSync(filePath, JSON.stringify(list, null, 2), "utf-8");
   } catch (err) {
     console.warn("[writeLocalBlogs Error]", err);
-  }
-
-  try {
-    const tmpPath = getTmpJsonPath();
-    fs.writeFileSync(tmpPath, JSON.stringify(list, null, 2), "utf-8");
-  } catch (tmpErr) {
-    console.warn("[writeTmpBlogs Error]", tmpErr);
   }
 }
 
@@ -120,18 +97,17 @@ export async function getBlogPostsAction(): Promise<BlogRecord[]> {
   }
 
   // 2. Read from Persistent Cloud Storage (Supabase Storage data/blogs.json)
-  const local = readLocalBlogs();
   try {
-    const cloudBlogs = await readCloudJson<BlogRecord[]>("blogs.json", local);
-    if (cloudBlogs && cloudBlogs.length > 0) {
+    const cloudBlogs = await readCloudJson<BlogRecord[] | null>("blogs.json", null);
+    if (Array.isArray(cloudBlogs)) {
       return cloudBlogs;
     }
   } catch (cloudErr) {
     console.warn("[getBlogPostsAction Cloud Notice]", cloudErr);
   }
 
-  // 3. Fallback to local
-  return local;
+  // 3. Fallback to local file only if cloud is unreachable
+  return readLocalBlogs();
 }
 
 // Get published blogs for public /blog page
