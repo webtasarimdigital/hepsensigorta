@@ -154,18 +154,19 @@ export async function saveBlogPostAction(input: BlogInput) {
     const currentList = await getBlogPostsAction();
     const slug = input.slug?.trim() ? generateSlug(input.slug) : generateSlug(input.title);
 
+    const existing = input.id ? currentList.find((b) => b.id === input.id) : null;
     const record: BlogRecord = {
       id: input.id || "blog-" + Date.now(),
-      created_at: new Date().toISOString(),
+      created_at: existing?.created_at || new Date().toISOString(),
       title: input.title.trim(),
       slug,
       excerpt: input.excerpt.trim(),
       content: input.content.trim(),
-      category: input.category || "Genel",
-      cover_image: input.cover_image || null,
-      published: input.published ?? true,
-      author_name: input.author_name || "Merve DOĞAN",
-      read_time: input.read_time || "4 dk",
+      category: input.category || existing?.category || "Genel",
+      cover_image: input.cover_image !== undefined ? (input.cover_image || null) : (existing?.cover_image || null),
+      published: input.published ?? existing?.published ?? true,
+      author_name: input.author_name || existing?.author_name || "Merve DOĞAN",
+      read_time: input.read_time || existing?.read_time || "4 dk",
     };
 
     if (input.id) {

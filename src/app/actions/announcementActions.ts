@@ -127,16 +127,17 @@ export async function saveAnnouncementAction(input: AnnouncementInput) {
   try {
     const currentList = await getAnnouncementsAction();
 
+    const existing = input.id ? currentList.find((i) => i.id === input.id) : null;
     const record: AnnouncementRecord = {
       id: input.id || "ann-" + Date.now(),
-      created_at: new Date().toISOString(),
+      created_at: existing?.created_at || new Date().toISOString(),
       title: input.title.trim(),
       excerpt: input.excerpt.trim(),
       content: input.content.trim(),
-      badge: input.badge || "Duyuru",
-      is_featured: input.is_featured ?? false,
-      link: input.link?.trim() || null,
-      image: input.image?.trim() || null,
+      badge: input.badge || existing?.badge || "Duyuru",
+      is_featured: input.is_featured ?? existing?.is_featured ?? false,
+      link: input.link !== undefined ? (input.link?.trim() || null) : (existing?.link || null),
+      image: input.image !== undefined ? (input.image?.trim() || null) : (existing?.image || null),
     };
 
     if (input.id) {

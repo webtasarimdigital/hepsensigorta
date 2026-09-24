@@ -62,21 +62,37 @@ function compressImage(
           dataUrl = canvas.toDataURL("image/jpeg", quality);
         }
 
-        canvas.toBlob(
-          (blob) => {
-            const finalBlob = blob || file;
-            resolve({
-              blob: finalBlob,
-              dataUrl,
-              originalSize: (file.size / (1024 * 1024)).toFixed(1) + " MB",
-              compressedSize: (finalBlob.size / 1024).toFixed(0) + " KB",
-            });
-          },
-          "image/webp",
-          quality
-        );
+        try {
+          canvas.toBlob(
+            (blob) => {
+              const finalBlob = blob || file;
+              resolve({
+                blob: finalBlob,
+                dataUrl,
+                originalSize: (file.size / (1024 * 1024)).toFixed(1) + " MB",
+                compressedSize: (finalBlob.size / 1024).toFixed(0) + " KB",
+              });
+            },
+            "image/webp",
+            quality
+          );
+        } catch {
+          canvas.toBlob(
+            (blob) => {
+              const finalBlob = blob || file;
+              resolve({
+                blob: finalBlob,
+                dataUrl,
+                originalSize: (file.size / (1024 * 1024)).toFixed(1) + " MB",
+                compressedSize: (finalBlob.size / 1024).toFixed(0) + " KB",
+              });
+            },
+            "image/jpeg",
+            quality
+          );
+        }
       };
-      img.onerror = () => reject(new Error("Görsel okunamadı veya bozuk format."));
+      img.onerror = () => reject(new Error("Görsel okunamadı veya dosya formatı bozuk."));
     };
     reader.onerror = () => reject(new Error("Dosya okunamadı."));
   });
@@ -100,33 +116,37 @@ export function ImageUploader({
     setErrorMsg(null);
 
     try {
-      // 1. Compress image client-side (reduces 5MB to ~80-150KB)
+      // 1. Instant client-side compression (reduces 5MB to ~80-150KB in milliseconds)
       const { blob, dataUrl, originalSize, compressedSize } = await compressImage(file);
-      setStats(`Optimize Edildi: ${originalSize} → ${compressedSize}`);
+      setStats(`Optimize: ${originalSize} → ${compressedSize}`);
 
-      // 2. Try server upload
+      // Show preview IMMEDIATELY (no waiting, no lost images)
+      onChange(dataUrl);
+
+      // 2. Upload to Cloud Storage in background to get permanent CDN URL
       try {
+        const cleanName = (file.name || "image")
+          .toLowerCase()
+          .replace(/[^a-z0-9.]/g, "-")
+          .replace(/\.[^.]+$/, ".webp");
+        const uploadFile = new File([blob], cleanName, { type: blob.type || "image/webp" });
         const formData = new FormData();
-        formData.append("file", blob, file.name.replace(/\.[^.]+$/, ".webp"));
+        formData.append("file", uploadFile);
 
         const res = await fetch("/api/upload", {
           method: "POST",
           body: formData,
         });
 
-        const data = await res.json();
-        if (res.ok && data.success && data.url) {
-          onChange(data.url);
-          setUploading(false);
-          return;
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.url) {
+            onChange(data.url);
+          }
         }
       } catch (uploadErr) {
-        console.warn("[Server upload failed, using compressed dataUrl]", uploadErr);
+        console.warn("[Cloud sync notice - using optimized local data]", uploadErr);
       }
-
-      // 3. Fallback: Use compressed WebP data URL (tiny, infallible, never exceeds limits)
-      onChange(dataUrl);
-      setErrorMsg(null);
     } catch (err: any) {
       setErrorMsg(err.message || "Görsel işlenirken bir hata oluştu.");
     } finally {
@@ -158,14 +178,19 @@ export function ImageUploader({
       {/* Current Preview or Upload Box */}
       {value ? (
         <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 group">
-          <div className="relative w-full h-44 sm:h-52">
-            <Image
+          <div className="relative w-full h-44 sm:h-52 flex items-center justify-center bg-slate-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={value}
               alt="Yüklenen Görsel"
-              fill
-              className="object-cover"
-              unoptimized={true}
+              className="w-full h-full object-cover"
             />
+            {uploading && (
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center gap-2 text-white text-xs font-bold">
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+                <span>Optimize Ediliyor & Senkronize Ediliyor...</span>
+              </div>
+            )}
           </div>
 
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">

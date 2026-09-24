@@ -12,9 +12,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Lütfen bir görsel dosyası seçiniz." }, { status: 400 });
     }
 
-    // Validate type
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
-    if (!validTypes.includes(file.type)) {
+    // Validate and normalize MIME type
+    let mimeType = (file.type || "").toLowerCase().split(";")[0].trim();
+    if (!mimeType || mimeType === "application/octet-stream") {
+      const ext = path.extname(file.name || "").toLowerCase();
+      if (ext === ".webp") mimeType = "image/webp";
+      else if (ext === ".jpg" || ext === ".jpeg") mimeType = "image/jpeg";
+      else if (ext === ".png") mimeType = "image/png";
+      else if (ext === ".gif") mimeType = "image/gif";
+      else if (ext === ".svg") mimeType = "image/svg+xml";
+      else if (ext === ".avif") mimeType = "image/avif";
+      else if (ext === ".bmp") mimeType = "image/bmp";
+    }
+    if (mimeType === "image/jpg") mimeType = "image/jpeg";
+
+    const validTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "image/svg+xml",
+      "image/avif",
+      "image/bmp",
+    ];
+    if (!validTypes.includes(mimeType)) {
       return NextResponse.json(
         { error: "Desteklenmeyen dosya türü. Lütfen JPG, PNG, WEBP veya GIF yükleyiniz." },
         { status: 400 }
@@ -45,7 +66,7 @@ export async function POST(req: NextRequest) {
         let { error: uploadError } = await supabaseAdmin.storage
           .from(bucketName)
           .upload(uniqueFileName, buffer, {
-            contentType: file.type,
+            contentType: mimeType,
             upsert: true,
           });
 
@@ -56,7 +77,7 @@ export async function POST(req: NextRequest) {
             const retry = await supabaseAdmin.storage
               .from(bucketName)
               .upload(uniqueFileName, buffer, {
-                contentType: file.type,
+                contentType: mimeType,
                 upsert: true,
               });
             uploadError = retry.error;
@@ -106,7 +127,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Bulletproof Base64 Data URL Fallback (works on Vercel and any serverless runtime)
     const base64Data = buffer.toString("base64");
-    const dataUrl = `data:${file.type};base64,${base64Data}`;
+    const dataUrl = `data:${mimeType};base64,${base64Data}`;
     return NextResponse.json({
       success: true,
       url: dataUrl,
