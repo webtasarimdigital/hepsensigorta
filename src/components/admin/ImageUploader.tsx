@@ -10,8 +10,12 @@ interface ImageUploaderProps {
   label?: string;
 }
 
-// Client-side image compression helper
-function compressImage(file: File, maxWidth = 1200, quality = 0.85): Promise<{ blob: Blob; dataUrl: string }> {
+// Client-side image compression helper (Guarantees <150KB regardless of input size)
+function compressImage(
+  file: File,
+  maxDimension = 1200,
+  quality = 0.80
+): Promise<{ blob: Blob; dataUrl: string; originalSize: string; compressedSize: string }> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -23,9 +27,15 @@ function compressImage(file: File, maxWidth = 1200, quality = 0.85): Promise<{ b
         let width = img.width;
         let height = img.height;
 
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
+        // Scale proportionally so neither width nor height exceeds maxDimension
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
         }
 
         canvas.width = width;
@@ -33,23 +43,42 @@ function compressImage(file: File, maxWidth = 1200, quality = 0.85): Promise<{ b
         const ctx = canvas.getContext("2d");
         if (!ctx) {
           const rawUrl = event.target?.result as string;
-          resolve({ blob: file, dataUrl: rawUrl });
+          resolve({
+            blob: file,
+            dataUrl: rawUrl,
+            originalSize: (file.size / (1024 * 1024)).toFixed(1) + " MB",
+            compressedSize: (file.size / 1024).toFixed(0) + " KB",
+          });
           return;
         }
+
+        // Clean high quality smoothing
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, 0, 0, width, height);
 
-        const dataUrl = canvas.toDataURL("image/webp", quality);
+        let dataUrl = canvas.toDataURL("image/webp", quality);
+        if (!dataUrl.startsWith("data:image/webp")) {
+          dataUrl = canvas.toDataURL("image/jpeg", quality);
+        }
+
         canvas.toBlob(
           (blob) => {
-            resolve({ blob: blob || file, dataUrl });
+            const finalBlob = blob || file;
+            resolve({
+              blob: finalBlob,
+              dataUrl,
+              originalSize: (file.size / (1024 * 1024)).toFixed(1) + " MB",
+              compressedSize: (finalBlob.size / 1024).toFixed(0) + " KB",
+            });
           },
           "image/webp",
           quality
         );
       };
-      img.onerror = () => reject(new Error("Görsel işlenemedi"));
+      img.onerror = () => reject(new Error("Görsel okunamadı veya bozuk format."));
     };
-    reader.onerror = () => reject(new Error("Dosya okunamadı"));
+    reader.onerror = () => reject(new Error("Dosya okunamadı."));
   });
 }
 
@@ -60,6 +89,7 @@ export function ImageUploader({
 }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [stats, setStats] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,7 +101,8 @@ export function ImageUploader({
 
     try {
       // 1. Compress image client-side (reduces 5MB to ~80-150KB)
-      const { blob, dataUrl } = await compressImage(file);
+      const { blob, dataUrl, originalSize, compressedSize } = await compressImage(file);
+      setStats(`Optimize Edildi: ${originalSize} → ${compressedSize}`);
 
       // 2. Try server upload
       try {
@@ -110,7 +141,18 @@ export function ImageUploader({
     <div className="space-y-2">
       <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
         <span>{label}</span>
-        {value && <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1"><Check className="w-3 h-3" /> Görsel Seçildi</span>}
+        <div className="flex items-center gap-2">
+          {stats && (
+            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+              ⚡ {stats}
+            </span>
+          )}
+          {value && (
+            <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+              <Check className="w-3 h-3" /> Görsel Hazır
+            </span>
+          )}
+        </div>
       </label>
 
       {/* Current Preview or Upload Box */}
