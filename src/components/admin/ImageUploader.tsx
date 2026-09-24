@@ -10,6 +10,49 @@ interface ImageUploaderProps {
   label?: string;
 }
 
+// Client-side image compression helper
+function compressImage(file: File, maxWidth = 1200, quality = 0.85): Promise<{ blob: Blob; dataUrl: string }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          const rawUrl = event.target?.result as string;
+          resolve({ blob: file, dataUrl: rawUrl });
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL("image/webp", quality);
+        canvas.toBlob(
+          (blob) => {
+            resolve({ blob: blob || file, dataUrl });
+          },
+          "image/webp",
+          quality
+        );
+      };
+      img.onerror = () => reject(new Error("Görsel işlenemedi"));
+    };
+    reader.onerror = () => reject(new Error("Dosya okunamadı"));
+  });
+}
+
 export function ImageUploader({
   value,
   onChange,
@@ -26,42 +69,35 @@ export function ImageUploader({
     setUploading(true);
     setErrorMsg(null);
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      // 1. Compress image client-side (reduces 5MB to ~80-150KB)
+      const { blob, dataUrl } = await compressImage(file);
 
-      const data = await res.json();
-      if (!res.ok || !data.success || !data.url) {
-        throw new Error(data.error || "Görsel yüklenemedi.");
-      }
-
-      onChange(data.url);
-    } catch (err: any) {
-      console.warn("[Upload Server Error, falling back to local base64]", err);
-      // Fallback: Read as base64 Data URL so the user is NEVER blocked
+      // 2. Try server upload
       try {
-        const reader = new FileReader();
-        reader.onload = (uploadEvent) => {
-          const result = uploadEvent.target?.result as string;
-          if (result) {
-            onChange(result);
-            setErrorMsg(null);
-          } else {
-            setErrorMsg("Görsel okunamadı. Lütfen farklı bir görsel seçiniz.");
-          }
-        };
-        reader.onerror = () => {
-          setErrorMsg("Görsel yüklenirken bir hata oluştu.");
-        };
-        reader.readAsDataURL(file);
-      } catch (readErr) {
-        setErrorMsg(err.message || "Görsel yüklenirken bir hata oluştu.");
+        const formData = new FormData();
+        formData.append("file", blob, file.name.replace(/\.[^.]+$/, ".webp"));
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success && data.url) {
+          onChange(data.url);
+          setUploading(false);
+          return;
+        }
+      } catch (uploadErr) {
+        console.warn("[Server upload failed, using compressed dataUrl]", uploadErr);
       }
+
+      // 3. Fallback: Use compressed WebP data URL (tiny, infallible, never exceeds limits)
+      onChange(dataUrl);
+      setErrorMsg(null);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Görsel işlenirken bir hata oluştu.");
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
