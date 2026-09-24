@@ -1,8 +1,8 @@
 import { MetadataRoute } from "next";
 import { SITE_CONFIG } from "@/constants/siteConfig";
-import { DEMO_BLOG_POSTS } from "@/constants/demoData";
+import { getPublicBlogPostsAction } from "@/app/actions/blogActions";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_CONFIG.meta.url;
 
   const staticRoutes = [
@@ -27,9 +27,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: route === "" ? 1.0 : route.startsWith("/bireysel") || route === "/teklif-al" ? 0.9 : 0.8,
   }));
 
-  const blogRoutes = DEMO_BLOG_POSTS.map((post) => ({
+  const blogPosts = await getPublicBlogPostsAction();
+  const blogRoutes = blogPosts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(),
+    lastModified: new Date(post.created_at || Date.now()),
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
