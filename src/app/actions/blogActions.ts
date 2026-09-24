@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient, createPublicClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export interface BlogInput {
@@ -46,10 +46,7 @@ function generateSlug(text: string): string {
 // Get all blogs for Admin
 export async function getBlogPostsAction(): Promise<BlogRecord[]> {
   try {
-    const supabaseAdmin = createAdminClient();
-    const supabaseClient = await createClient();
-    const client = supabaseAdmin || supabaseClient;
-
+    const client = createAdminClient() || createPublicClient();
     if (!client) return [];
 
     const { data, error } = await client
@@ -72,10 +69,7 @@ export async function getBlogPostsAction(): Promise<BlogRecord[]> {
 // Get published blogs for public /blog page
 export async function getPublicBlogPostsAction(): Promise<BlogRecord[]> {
   try {
-    const supabaseAdmin = createAdminClient();
-    const supabaseClient = await createClient();
-    const client = supabaseAdmin || supabaseClient;
-
+    const client = createAdminClient() || createPublicClient();
     if (!client) return [];
 
     const { data, error } = await client
@@ -99,10 +93,7 @@ export async function getPublicBlogPostsAction(): Promise<BlogRecord[]> {
 // Get single blog post by slug
 export async function getBlogPostBySlugAction(slug: string): Promise<BlogRecord | null> {
   try {
-    const supabaseAdmin = createAdminClient();
-    const supabaseClient = await createClient();
-    const client = supabaseAdmin || supabaseClient;
-
+    const client = createAdminClient() || createPublicClient();
     if (!client) return null;
 
     const { data, error } = await client

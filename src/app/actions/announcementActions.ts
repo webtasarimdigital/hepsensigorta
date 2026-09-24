@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient, createPublicClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export interface AnnouncementInput {
@@ -27,10 +27,7 @@ export interface AnnouncementRecord {
 // Get all announcements for Admin
 export async function getAnnouncementsAction(): Promise<AnnouncementRecord[]> {
   try {
-    const supabaseAdmin = createAdminClient();
-    const supabaseClient = await createClient();
-    const client = supabaseAdmin || supabaseClient;
-
+    const client = createAdminClient() || createPublicClient();
     if (!client) return [];
 
     const { data, error } = await client
@@ -53,10 +50,7 @@ export async function getAnnouncementsAction(): Promise<AnnouncementRecord[]> {
 // Get public announcements
 export async function getPublicAnnouncementsAction(): Promise<AnnouncementRecord[]> {
   try {
-    const supabaseAdmin = createAdminClient();
-    const supabaseClient = await createClient();
-    const client = supabaseAdmin || supabaseClient;
-
+    const client = createAdminClient() || createPublicClient();
     if (!client) return [];
 
     const { data, error } = await client
