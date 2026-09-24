@@ -5,6 +5,7 @@ import Image from "next/image";
 import { BookOpen, Plus, Edit, Trash2, Eye, X, RefreshCw, Calendar, Clock, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import {
   getBlogPostsAction,
   saveBlogPostAction,
@@ -334,17 +335,13 @@ export default function AdminBlogPage() {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="font-bold text-slate-700">Detaylı İçerik (Metin / Paragraflar) *</label>
-                <textarea
-                  rows={8}
-                  required
-                  placeholder="Yazınızın detaylı metnini buraya giriniz..."
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-sans text-xs leading-relaxed"
-                />
-              </div>
+              <RichTextEditor
+                label="Detaylı İçerik (Boyut, Renk ve Biçimlendirme Araçları) *"
+                value={formData.content}
+                onChange={(html) => setFormData({ ...formData, content: html })}
+                placeholder="Yazınızın detaylı metnini buraya giriniz. Başlıkları, renkleri ve listeleri yukarıdaki butonlardan düzenleyebilirsiniz..."
+                minHeight="280px"
+              />
 
               <label className="flex items-center gap-2 cursor-pointer pt-1">
                 <input

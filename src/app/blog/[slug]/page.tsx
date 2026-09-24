@@ -131,22 +131,29 @@ export default async function BlogPostPage({ params }: Props) {
           )}
 
           {/* Article Body */}
-          <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-sm sm:text-base space-y-5">
-            {post.content.split("\n\n").map((paragraph, index) => {
-              const trimmed = paragraph.trim();
-              if (trimmed.startsWith("### ")) {
-                return (
-                  <h3 key={index} className="text-xl font-bold text-[#0B1F3A] pt-4 pb-1">
-                    {trimmed.replace("### ", "")}
-                  </h3>
-                );
-              }
-              if (trimmed) {
-                return <p key={index}>{trimmed}</p>;
-              }
-              return null;
-            })}
-          </div>
+          {post.content.includes("<") ? (
+            <div
+              className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-sm sm:text-base space-y-4 [&_blockquote]:border-l-4 [&_blockquote]:border-emerald-500 [&_blockquote]:bg-emerald-50/50 [&_blockquote]:p-4 [&_blockquote]:rounded-r-2xl [&_blockquote]:italic [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-[#0B1F3A] [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-[#0B1F3A] [&_h4]:text-lg [&_h4]:font-semibold [&_img]:rounded-2xl [&_img]:max-w-full [&_img]:my-4 [&_a]:text-emerald-600 [&_a]:underline"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          ) : (
+            <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-sm sm:text-base space-y-5">
+              {post.content.split("\n\n").map((paragraph, index) => {
+                const trimmed = paragraph.trim();
+                if (trimmed.startsWith("### ")) {
+                  return (
+                    <h3 key={index} className="text-xl font-bold text-[#0B1F3A] pt-4 pb-1">
+                      {trimmed.replace("### ", "")}
+                    </h3>
+                  );
+                }
+                if (trimmed) {
+                  return <p key={index}>{trimmed}</p>;
+                }
+                return null;
+              })}
+            </div>
+          )}
 
           {/* Mid-Article CTA Banner */}
           <div className="my-12 p-8 rounded-3xl bg-[#0B1F3A] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">

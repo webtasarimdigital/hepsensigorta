@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Bell, Calendar, Sparkles, ChevronRight, MessageCircle, ArrowRight, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { getWhatsAppUrl } from "@/constants/siteConfig";
@@ -85,13 +86,32 @@ export default async function DuyurularPage() {
                   </div>
                 </div>
 
+                {item.image && (
+                  <div className="relative w-full h-52 sm:h-72 rounded-2xl overflow-hidden bg-slate-100 my-2">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      className="object-cover"
+                      unoptimized={item.image.startsWith("/uploads")}
+                    />
+                  </div>
+                )}
+
                 <h2 className="text-xl sm:text-2xl font-bold text-[#0B1F3A]">
                   {item.title}
                 </h2>
 
-                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                  {item.content}
-                </p>
+                {item.content.includes("<") ? (
+                  <div
+                    className="prose prose-slate max-w-none text-sm text-slate-700 leading-relaxed [&_blockquote]:border-l-4 [&_blockquote]:border-emerald-500 [&_blockquote]:bg-emerald-50/50 [&_blockquote]:p-3 [&_blockquote]:rounded-r-xl [&_blockquote]:italic [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-[#0B1F3A] [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-[#0B1F3A] [&_h4]:text-base [&_h4]:font-semibold [&_img]:rounded-xl [&_img]:max-w-full [&_img]:my-3"
+                    dangerouslySetInnerHTML={{ __html: item.content }}
+                  />
+                ) : (
+                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                    {item.content}
+                  </p>
+                )}
 
                 {item.link && (
                   <div className="pt-1">

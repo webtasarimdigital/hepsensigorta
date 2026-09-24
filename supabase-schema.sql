@@ -88,7 +88,8 @@ CREATE TABLE IF NOT EXISTS public.announcements (
     content TEXT NOT NULL,
     badge TEXT DEFAULT 'Duyuru',
     is_featured BOOLEAN DEFAULT false,
-    link TEXT
+    link TEXT,
+    image TEXT
 );
 
 -- Announcements Indexleri
