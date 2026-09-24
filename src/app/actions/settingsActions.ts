@@ -2,6 +2,7 @@
 
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { revalidatePath } from "next/cache";
 import { createAdminClient, createPublicClient } from "@/lib/supabase/server";
 import { SiteSettingsData, DEFAULT_SETTINGS, formatPhoneRaw } from "@/types/settings";
@@ -10,11 +11,34 @@ function getLocalJsonPath(): string {
   return path.join(process.cwd(), "src", "constants", "siteSettings.json");
 }
 
+function getTmpJsonPath(): string {
+  return path.join(os.tmpdir(), "hepsen_siteSettings.json");
+}
+
 function readLocalSettings(): SiteSettingsData {
+  let content: string | null = null;
   try {
-    const filePath = getLocalJsonPath();
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, "utf-8");
+    const tmpPath = getTmpJsonPath();
+    if (fs.existsSync(tmpPath)) {
+      content = fs.readFileSync(tmpPath, "utf-8");
+    }
+  } catch (tmpErr) {
+    console.warn("[readTmpSettings Error]", tmpErr);
+  }
+
+  if (!content) {
+    try {
+      const filePath = getLocalJsonPath();
+      if (fs.existsSync(filePath)) {
+        content = fs.readFileSync(filePath, "utf-8");
+      }
+    } catch (err) {
+      console.warn("[readLocalSettings Error]", err);
+    }
+  }
+
+  if (content) {
+    try {
       const parsed = JSON.parse(content);
       const phone = parsed.phone || DEFAULT_SETTINGS.phone;
       const landline = parsed.landline || DEFAULT_SETTINGS.landline;
@@ -26,10 +50,11 @@ function readLocalSettings(): SiteSettingsData {
         landlineRaw: formatPhoneRaw(landline),
         whatsappRaw: formatPhoneRaw(whatsapp),
       };
+    } catch (parseErr) {
+      console.warn("[parseSettings Error]", parseErr);
     }
-  } catch (err) {
-    console.warn("[readLocalSettings Error]", err);
   }
+
   return DEFAULT_SETTINGS;
 }
 
@@ -39,6 +64,13 @@ function writeLocalSettings(data: SiteSettingsData): void {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
   } catch (err) {
     console.warn("[writeLocalSettings Error]", err);
+  }
+
+  try {
+    const tmpPath = getTmpJsonPath();
+    fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), "utf-8");
+  } catch (tmpErr) {
+    console.warn("[writeTmpSettings Error]", tmpErr);
   }
 }
 

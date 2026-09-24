@@ -36,13 +36,32 @@ export function ImageUploader({
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) {
+      if (!res.ok || !data.success || !data.url) {
         throw new Error(data.error || "Görsel yüklenemedi.");
       }
 
       onChange(data.url);
     } catch (err: any) {
-      setErrorMsg(err.message || "Görsel yüklenirken bir hata oluştu.");
+      console.warn("[Upload Server Error, falling back to local base64]", err);
+      // Fallback: Read as base64 Data URL so the user is NEVER blocked
+      try {
+        const reader = new FileReader();
+        reader.onload = (uploadEvent) => {
+          const result = uploadEvent.target?.result as string;
+          if (result) {
+            onChange(result);
+            setErrorMsg(null);
+          } else {
+            setErrorMsg("Görsel okunamadı. Lütfen farklı bir görsel seçiniz.");
+          }
+        };
+        reader.onerror = () => {
+          setErrorMsg("Görsel yüklenirken bir hata oluştu.");
+        };
+        reader.readAsDataURL(file);
+      } catch (readErr) {
+        setErrorMsg(err.message || "Görsel yüklenirken bir hata oluştu.");
+      }
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
@@ -67,7 +86,7 @@ export function ImageUploader({
               alt="Yüklenen Görsel"
               fill
               className="object-cover"
-              unoptimized={value.startsWith("/uploads")}
+              unoptimized={true}
             />
           </div>
 

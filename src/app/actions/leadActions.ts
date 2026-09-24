@@ -1,7 +1,10 @@
 "use server";
 
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import fs from "fs";
+import path from "path";
+import os from "os";
 import { revalidatePath } from "next/cache";
+import { createClient, createAdminClient, createPublicClient } from "@/lib/supabase/server";
 
 export interface LeadSubmissionInput {
   service: string;
@@ -29,6 +32,68 @@ export interface LeadRecord {
   admin_note: string | null;
 }
 
+function getLocalJsonPath(): string {
+  return path.join(process.cwd(), "src", "constants", "leads.json");
+}
+
+function getTmpJsonPath(): string {
+  return path.join(os.tmpdir(), "hepsen_leads.json");
+}
+
+function readLocalLeads(): LeadRecord[] {
+  let list: LeadRecord[] = [];
+
+  // 1. Try reading from project leads.json
+  try {
+    const filePath = getLocalJsonPath();
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, "utf-8");
+      list = JSON.parse(content) as LeadRecord[];
+    }
+  } catch (err) {
+    console.warn("[readLocalLeads Error]", err);
+  }
+
+  // 2. Also check /tmp for serverless persistence
+  try {
+    const tmpPath = getTmpJsonPath();
+    if (fs.existsSync(tmpPath)) {
+      const content = fs.readFileSync(tmpPath, "utf-8");
+      const tmpList = JSON.parse(content) as LeadRecord[];
+      const existingIds = new Set(list.map((l) => l.id));
+      for (const item of tmpList) {
+        if (!existingIds.has(item.id)) {
+          list.push(item);
+        }
+      }
+    }
+  } catch (tmpErr) {
+    console.warn("[readTmpLeads Error]", tmpErr);
+  }
+
+  return list.sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+}
+
+function writeLocalLeads(list: LeadRecord[]): void {
+  // Write to src/constants/leads.json
+  try {
+    const filePath = getLocalJsonPath();
+    fs.writeFileSync(filePath, JSON.stringify(list, null, 2), "utf-8");
+  } catch (err) {
+    console.warn("[writeLocalLeads Warning]", err);
+  }
+
+  // Write to /tmp/hepsen_leads.json
+  try {
+    const tmpPath = getTmpJsonPath();
+    fs.writeFileSync(tmpPath, JSON.stringify(list, null, 2), "utf-8");
+  } catch (tmpErr) {
+    console.warn("[writeTmpLeads Warning]", tmpErr);
+  }
+}
+
 export async function submitLeadAction(data: LeadSubmissionInput) {
   // 1. Validation
   if (!data.fullName || data.fullName.trim().length < 3) {
@@ -51,31 +116,36 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
   try {
     let supabaseSaved = false;
 
-    // 2. Insert directly into Supabase leads table (Admin client preferred to bypass RLS, fallback to regular client)
+    const newLead: LeadRecord = {
+      id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+      service: data.service,
+      full_name: data.fullName.trim(),
+      phone: data.phone.trim(),
+      email: data.email?.trim() || null,
+      city: data.city?.trim() || null,
+      preferred_contact: data.preferredContact || "WhatsApp",
+      message: data.message?.trim() || null,
+      status: "Yeni",
+      admin_note: null,
+    };
+
+    // 1. Guaranteed Local Write First (Never fails)
+    const currentLeads = readLocalLeads();
+    const updatedLeads = [newLead, ...currentLeads.filter((l) => l.id !== newLead.id)];
+    writeLocalLeads(updatedLeads);
+
+    // 2. Try inserting into Supabase leads table
     try {
       const supabaseAdmin = createAdminClient();
       const supabaseClient = await createClient();
       const client = supabaseAdmin || supabaseClient;
 
       if (client) {
-        const { error } = await client.from("leads").insert([
-          {
-            service: data.service,
-            full_name: data.fullName.trim(),
-            phone: data.phone.trim(),
-            email: data.email?.trim() || null,
-            city: data.city?.trim() || null,
-            preferred_contact: data.preferredContact || "WhatsApp",
-            message: data.message?.trim() || null,
-            status: "Yeni",
-            admin_note: null,
-          },
-        ]);
+        const { error } = await client.from("leads").insert([newLead]);
 
         if (!error) {
           supabaseSaved = true;
-          revalidatePath("/admin");
-          revalidatePath("/admin/leads");
         } else {
           console.warn("[Supabase Insert Warning]", error.message);
         }
@@ -84,7 +154,13 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
       console.warn("[Database Connection Warning]", dbErr);
     }
 
-    // Direct return without email dispatching
+    try {
+      revalidatePath("/admin");
+      revalidatePath("/admin/leads");
+    } catch {
+      // outside request scope
+    }
+
     return {
       success: true,
       message: "Talebiniz başarıyla alındı. Uzman danışmanımız en kısa sürede sizinle iletişime geçecektir.",
@@ -99,52 +175,68 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
   }
 }
 
-// Fetch all leads from Supabase for Admin Panel
+// Fetch all leads for Admin Panel (Dual Storage)
 export async function getLeadsAction(): Promise<LeadRecord[]> {
+  const localList = readLocalLeads();
+
   try {
     const supabaseAdmin = createAdminClient();
     const supabaseClient = await createClient();
-    const client = supabaseAdmin || supabaseClient;
+    const client = supabaseAdmin || supabaseClient || createPublicClient();
 
-    if (!client) {
-      return [];
+    if (client) {
+      const { data, error } = await client
+        .from("leads")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        const sbLeads = data as LeadRecord[];
+        const sbIds = new Set(sbLeads.map((l) => l.id));
+        const merged = [...sbLeads];
+        for (const local of localList) {
+          if (!sbIds.has(local.id)) {
+            merged.push(local);
+          }
+        }
+        return merged.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      }
     }
-
-    const { data, error } = await client
-      .from("leads")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.warn("[getLeadsAction Error]", error.message);
-      return [];
-    }
-
-    return (data as LeadRecord[]) || [];
   } catch (err) {
     console.warn("[getLeadsAction Error]", err);
-    return [];
   }
+
+  return localList;
 }
 
 // Update Lead Status
 export async function updateLeadStatusAction(id: string, status: string) {
   try {
-    const supabaseAdmin = createAdminClient();
-    const supabaseClient = await createClient();
-    const client = supabaseAdmin || supabaseClient;
+    // 1. Update local
+    const localList = readLocalLeads();
+    const updated = localList.map((l) =>
+      l.id === id ? { ...l, status: status as any } : l
+    );
+    writeLocalLeads(updated);
 
-    if (!client) return { success: false, error: "Veritabanı bağlantısı yok." };
+    // 2. Try Supabase
+    try {
+      const client = createAdminClient() || (await createClient());
+      if (client) {
+        await client.from("leads").update({ status }).eq("id", id);
+      }
+    } catch (dbErr) {
+      console.warn("[updateLeadStatus Supabase Notice]", dbErr);
+    }
 
-    const { error } = await client
-      .from("leads")
-      .update({ status })
-      .eq("id", id);
-
-    if (error) throw error;
-
-    revalidatePath("/admin");
-    revalidatePath("/admin/leads");
+    try {
+      revalidatePath("/admin");
+      revalidatePath("/admin/leads");
+    } catch {
+      // outside request scope
+    }
 
     return { success: true };
   } catch (err: any) {
@@ -155,21 +247,29 @@ export async function updateLeadStatusAction(id: string, status: string) {
 // Update Lead Admin Note
 export async function updateLeadNoteAction(id: string, admin_note: string) {
   try {
-    const supabaseAdmin = createAdminClient();
-    const supabaseClient = await createClient();
-    const client = supabaseAdmin || supabaseClient;
+    // 1. Update local
+    const localList = readLocalLeads();
+    const updated = localList.map((l) =>
+      l.id === id ? { ...l, admin_note } : l
+    );
+    writeLocalLeads(updated);
 
-    if (!client) return { success: false, error: "Veritabanı bağlantısı yok." };
+    // 2. Try Supabase
+    try {
+      const client = createAdminClient() || (await createClient());
+      if (client) {
+        await client.from("leads").update({ admin_note }).eq("id", id);
+      }
+    } catch (dbErr) {
+      console.warn("[updateLeadNote Supabase Notice]", dbErr);
+    }
 
-    const { error } = await client
-      .from("leads")
-      .update({ admin_note })
-      .eq("id", id);
-
-    if (error) throw error;
-
-    revalidatePath("/admin");
-    revalidatePath("/admin/leads");
+    try {
+      revalidatePath("/admin");
+      revalidatePath("/admin/leads");
+    } catch {
+      // outside request scope
+    }
 
     return { success: true };
   } catch (err: any) {
@@ -180,17 +280,26 @@ export async function updateLeadNoteAction(id: string, admin_note: string) {
 // Delete Lead
 export async function deleteLeadAction(id: string) {
   try {
-    const supabaseAdmin = createAdminClient();
-    const supabaseClient = await createClient();
-    const client = supabaseAdmin || supabaseClient;
+    // 1. Delete local
+    const localList = readLocalLeads().filter((l) => l.id !== id);
+    writeLocalLeads(localList);
 
-    if (!client) return { success: false, error: "Veritabanı bağlantısı yok." };
+    // 2. Try Supabase
+    try {
+      const client = createAdminClient() || (await createClient());
+      if (client) {
+        await client.from("leads").delete().eq("id", id);
+      }
+    } catch (dbErr) {
+      console.warn("[deleteLead Supabase Notice]", dbErr);
+    }
 
-    const { error } = await client.from("leads").delete().eq("id", id);
-    if (error) throw error;
-
-    revalidatePath("/admin");
-    revalidatePath("/admin/leads");
+    try {
+      revalidatePath("/admin");
+      revalidatePath("/admin/leads");
+    } catch {
+      // outside request scope
+    }
 
     return { success: true };
   } catch (err: any) {

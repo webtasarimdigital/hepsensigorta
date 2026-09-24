@@ -41,14 +41,29 @@ export async function POST(req: NextRequest) {
     try {
       const supabaseAdmin = createAdminClient();
       if (supabaseAdmin) {
-        // Try uploading to 'uploads' or 'blog-images' bucket
         const bucketName = "uploads";
-        const { error: uploadError } = await supabaseAdmin.storage
+        let { error: uploadError } = await supabaseAdmin.storage
           .from(bucketName)
           .upload(uniqueFileName, buffer, {
             contentType: file.type,
             upsert: true,
           });
+
+        // If bucket does not exist or upload had bucket error, try creating the bucket
+        if (uploadError && (uploadError.message?.toLowerCase().includes("bucket") || (uploadError as any).statusCode === "404")) {
+          try {
+            await supabaseAdmin.storage.createBucket(bucketName, { public: true, fileSizeLimit: 10485760 });
+            const retry = await supabaseAdmin.storage
+              .from(bucketName)
+              .upload(uniqueFileName, buffer, {
+                contentType: file.type,
+                upsert: true,
+              });
+            uploadError = retry.error;
+          } catch (createErr) {
+            console.warn("[Supabase Create Bucket Attempt]", createErr);
+          }
+        }
 
         if (!uploadError) {
           const { data: publicUrlData } = supabaseAdmin.storage
@@ -63,6 +78,8 @@ export async function POST(req: NextRequest) {
               storage: "supabase",
             });
           }
+        } else {
+          console.warn("[Supabase Upload Warning]", uploadError.message);
         }
       }
     } catch (storageErr) {
@@ -70,22 +87,36 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Local File System Fallback (public/uploads/)
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.mkdir(uploadDir, { recursive: true });
-    const filePath = path.join(uploadDir, uniqueFileName);
-    await fs.writeFile(filePath, buffer);
+    try {
+      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      await fs.mkdir(uploadDir, { recursive: true });
+      const filePath = path.join(uploadDir, uniqueFileName);
+      await fs.writeFile(filePath, buffer);
 
-    const publicUrl = `/uploads/${uniqueFileName}`;
+      const publicUrl = `/uploads/${uniqueFileName}`;
+      return NextResponse.json({
+        success: true,
+        url: publicUrl,
+        fileName: uniqueFileName,
+        storage: "local",
+      });
+    } catch (fsErr) {
+      console.warn("[Local File System Notice, falling back to base64 Data URL]", fsErr);
+    }
+
+    // 3. Bulletproof Base64 Data URL Fallback (works on Vercel and any serverless runtime)
+    const base64Data = buffer.toString("base64");
+    const dataUrl = `data:${file.type};base64,${base64Data}`;
     return NextResponse.json({
       success: true,
-      url: publicUrl,
+      url: dataUrl,
       fileName: uniqueFileName,
-      storage: "local",
+      storage: "base64",
     });
   } catch (error: any) {
     console.error("[Upload Error]", error);
     return NextResponse.json(
-      { error: "Görsel yüklenirken bir hata oluştu. Lütfen tekrar deneyiniz." },
+      { error: "Görsel yüklenirken bir hata oluştu: " + (error?.message || "Lütfen tekrar deneyiniz.") },
       { status: 500 }
     );
   }

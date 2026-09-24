@@ -2,6 +2,7 @@
 
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { revalidatePath } from "next/cache";
 import { createClient, createAdminClient, createPublicClient } from "@/lib/supabase/server";
 
@@ -49,17 +50,37 @@ function getLocalJsonPath(): string {
   return path.join(process.cwd(), "src", "constants", "blogs.json");
 }
 
+function getTmpJsonPath(): string {
+  return path.join(os.tmpdir(), "hepsen_blogs.json");
+}
+
 function readLocalBlogs(): BlogRecord[] {
+  let list: BlogRecord[] = [];
   try {
     const filePath = getLocalJsonPath();
     if (fs.existsSync(filePath)) {
       const content = fs.readFileSync(filePath, "utf-8");
-      return JSON.parse(content) as BlogRecord[];
+      list = JSON.parse(content) as BlogRecord[];
     }
   } catch (err) {
     console.warn("[readLocalBlogs Error]", err);
   }
-  return [];
+
+  try {
+    const tmpPath = getTmpJsonPath();
+    if (fs.existsSync(tmpPath)) {
+      const content = fs.readFileSync(tmpPath, "utf-8");
+      const tmpList = JSON.parse(content) as BlogRecord[];
+      const existingIds = new Set(list.map((l) => l.id));
+      for (const item of tmpList) {
+        if (!existingIds.has(item.id)) list.push(item);
+      }
+    }
+  } catch (tmpErr) {
+    console.warn("[readTmpBlogs Error]", tmpErr);
+  }
+
+  return list;
 }
 
 function writeLocalBlogs(list: BlogRecord[]): void {
@@ -68,6 +89,13 @@ function writeLocalBlogs(list: BlogRecord[]): void {
     fs.writeFileSync(filePath, JSON.stringify(list, null, 2), "utf-8");
   } catch (err) {
     console.warn("[writeLocalBlogs Error]", err);
+  }
+
+  try {
+    const tmpPath = getTmpJsonPath();
+    fs.writeFileSync(tmpPath, JSON.stringify(list, null, 2), "utf-8");
+  } catch (tmpErr) {
+    console.warn("[writeTmpBlogs Error]", tmpErr);
   }
 }
 
