@@ -12,6 +12,9 @@ import { FaqSection } from "@/components/sections/FaqSection";
 import { LocalContactSection } from "@/components/sections/LocalContactSection";
 import { FinalCtaSection } from "@/components/sections/FinalCtaSection";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function HomePage() {
   return (
     <>

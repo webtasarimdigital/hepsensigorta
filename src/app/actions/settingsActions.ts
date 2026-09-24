@@ -6,6 +6,7 @@ import os from "os";
 import { revalidatePath } from "next/cache";
 import { createAdminClient, createPublicClient } from "@/lib/supabase/server";
 import { SiteSettingsData, DEFAULT_SETTINGS, formatPhoneRaw } from "@/types/settings";
+import { readCloudJson, writeCloudJson } from "@/lib/supabase/storageStore";
 
 function getLocalJsonPath(): string {
   return path.join(process.cwd(), "src", "constants", "siteSettings.json");
@@ -104,6 +105,7 @@ function mapDbToSettings(row: any): SiteSettingsData {
 }
 
 export async function getSiteSettingsAction(): Promise<SiteSettingsData> {
+  // 1. Try Supabase Database Table
   try {
     const client = createAdminClient() || createPublicClient();
     if (client) {
@@ -118,11 +120,22 @@ export async function getSiteSettingsAction(): Promise<SiteSettingsData> {
       }
     }
   } catch (err) {
-    console.warn("[getSiteSettingsAction Supabase Error]", err);
+    console.warn("[getSiteSettingsAction Supabase Notice]", err);
   }
 
-  // Fallback to local settings JSON or default
-  return readLocalSettings();
+  // 2. Try Persistent Cloud Storage
+  const local = readLocalSettings();
+  try {
+    const cloudSettings = await readCloudJson<SiteSettingsData>("siteSettings.json", local);
+    if (cloudSettings && cloudSettings.name) {
+      return cloudSettings;
+    }
+  } catch (cloudErr) {
+    console.warn("[getSiteSettingsAction Cloud Notice]", cloudErr);
+  }
+
+  // 3. Fallback to local settings JSON or default
+  return local;
 }
 
 export async function saveSiteSettingsAction(data: Partial<SiteSettingsData>): Promise<{
@@ -148,7 +161,10 @@ export async function saveSiteSettingsAction(data: Partial<SiteSettingsData>): P
       whatsappRaw: formatPhoneRaw(whatsapp),
     };
 
-    // 1. Immediately persist to local json for instant zero-lag updates
+    // 1. Write to Persistent Cloud Storage
+    await writeCloudJson("siteSettings.json", updated);
+
+    // 2. Immediately persist to local json for instant zero-lag updates
     writeLocalSettings(updated);
 
     // 2. Persist to Supabase if table exists

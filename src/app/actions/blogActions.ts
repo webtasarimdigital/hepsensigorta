@@ -5,6 +5,7 @@ import path from "path";
 import os from "os";
 import { revalidatePath } from "next/cache";
 import { createClient, createAdminClient, createPublicClient } from "@/lib/supabase/server";
+import { readCloudJson, writeCloudJson } from "@/lib/supabase/storageStore";
 
 export interface BlogInput {
   id?: string;
@@ -101,6 +102,7 @@ function writeLocalBlogs(list: BlogRecord[]): void {
 
 // Get all blogs for Admin
 export async function getBlogPostsAction(): Promise<BlogRecord[]> {
+  // 1. Try Supabase Table
   try {
     const client = createAdminClient() || createPublicClient();
     if (client) {
@@ -114,61 +116,42 @@ export async function getBlogPostsAction(): Promise<BlogRecord[]> {
       }
     }
   } catch (err) {
-    console.warn("[getBlogPostsAction Error]", err);
+    console.warn("[getBlogPostsAction DB Notice]", err);
   }
 
-  return readLocalBlogs();
+  // 2. Read from Persistent Cloud Storage (Supabase Storage data/blogs.json)
+  const local = readLocalBlogs();
+  try {
+    const cloudBlogs = await readCloudJson<BlogRecord[]>("blogs.json", local);
+    if (cloudBlogs && cloudBlogs.length > 0) {
+      return cloudBlogs;
+    }
+  } catch (cloudErr) {
+    console.warn("[getBlogPostsAction Cloud Notice]", cloudErr);
+  }
+
+  // 3. Fallback to local
+  return local;
 }
 
 // Get published blogs for public /blog page
 export async function getPublicBlogPostsAction(): Promise<BlogRecord[]> {
-  try {
-    const client = createAdminClient() || createPublicClient();
-    if (client) {
-      const { data, error } = await client
-        .from("blogs")
-        .select("*")
-        .eq("published", true)
-        .order("created_at", { ascending: false });
-
-      if (!error && data && data.length > 0) {
-        return data as BlogRecord[];
-      }
-    }
-  } catch (err) {
-    console.warn("[getPublicBlogPostsAction Error]", err);
-  }
-
-  return readLocalBlogs().filter((b) => b.published);
+  const all = await getBlogPostsAction();
+  return all.filter((b) => b.published);
 }
 
 // Get single blog post by slug
 export async function getBlogPostBySlugAction(slug: string): Promise<BlogRecord | null> {
-  try {
-    const client = createAdminClient() || createPublicClient();
-    if (client) {
-      const { data, error } = await client
-        .from("blogs")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (!error && data) {
-        return data as BlogRecord;
-      }
-    }
-  } catch (err) {
-    console.warn("[getBlogPostBySlugAction Error]", err);
-  }
-
-  const local = readLocalBlogs().find((b) => b.slug === slug);
-  return local || null;
+  const all = await getBlogPostsAction();
+  const normalizedSlug = decodeURIComponent(slug).toLowerCase().trim();
+  const found = all.find((b) => b.slug.toLowerCase().trim() === normalizedSlug);
+  return found || null;
 }
 
 // Save (Create or Update) Blog Post
 export async function saveBlogPostAction(input: BlogInput) {
   try {
-    const localList = readLocalBlogs();
+    const currentList = await getBlogPostsAction();
     const slug = input.slug?.trim() ? generateSlug(input.slug) : generateSlug(input.title);
 
     const record: BlogRecord = {
@@ -185,20 +168,24 @@ export async function saveBlogPostAction(input: BlogInput) {
       read_time: input.read_time || "4 dk",
     };
 
-    // 1. Immediately persist locally
     if (input.id) {
-      const idx = localList.findIndex((b) => b.id === input.id);
+      const idx = currentList.findIndex((b) => b.id === input.id);
       if (idx !== -1) {
-        localList[idx] = { ...localList[idx], ...record };
+        currentList[idx] = { ...currentList[idx], ...record };
       } else {
-        localList.unshift(record);
+        currentList.unshift(record);
       }
     } else {
-      localList.unshift(record);
+      currentList.unshift(record);
     }
-    writeLocalBlogs(localList);
 
-    // 2. Try Supabase write
+    // 1. Write to Persistent Cloud Storage (Supabase Storage uploads/data/blogs.json)
+    await writeCloudJson("blogs.json", currentList);
+
+    // 2. Also write to local files & /tmp
+    writeLocalBlogs(currentList);
+
+    // 3. Try Supabase database table if configured
     try {
       const client = createAdminClient() || createPublicClient();
       if (client) {
@@ -248,11 +235,16 @@ export async function saveBlogPostAction(input: BlogInput) {
 // Delete Blog Post
 export async function deleteBlogPostAction(id: string) {
   try {
-    // 1. Delete locally
-    const localList = readLocalBlogs().filter((b) => b.id !== id);
-    writeLocalBlogs(localList);
+    const currentList = await getBlogPostsAction();
+    const updated = currentList.filter((b) => b.id !== id);
 
-    // 2. Try Supabase
+    // 1. Write to Persistent Cloud Storage
+    await writeCloudJson("blogs.json", updated);
+
+    // 2. Write locally
+    writeLocalBlogs(updated);
+
+    // 3. Try Supabase
     try {
       const client = createAdminClient() || createPublicClient();
       if (client) {

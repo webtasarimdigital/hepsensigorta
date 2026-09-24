@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/Button";
 import { getWhatsAppUrl } from "@/constants/siteConfig";
 import { getPublicAnnouncementsAction } from "@/app/actions/announcementActions";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Duyurular & Kampanyalar | Hepsen Sigorta",
   description: "Bireysel Emeklilik mevzuat değişiklikleri, sağlık sigortası aile kampanyaları ve güncel duyurular.",

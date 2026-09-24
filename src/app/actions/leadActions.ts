@@ -5,6 +5,7 @@ import path from "path";
 import os from "os";
 import { revalidatePath } from "next/cache";
 import { createClient, createAdminClient, createPublicClient } from "@/lib/supabase/server";
+import { readCloudJson, writeCloudJson } from "@/lib/supabase/storageStore";
 
 export interface LeadSubmissionInput {
   service: string;
@@ -130,9 +131,13 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
       admin_note: null,
     };
 
-    // 1. Guaranteed Local Write First (Never fails)
-    const currentLeads = readLocalLeads();
+    // 1. Guaranteed Local Write First
+    const currentLeads = await getLeadsAction();
     const updatedLeads = [newLead, ...currentLeads.filter((l) => l.id !== newLead.id)];
+    
+    // Write to Persistent Cloud Storage
+    await writeCloudJson("leads.json", updatedLeads);
+    // Write locally
     writeLocalLeads(updatedLeads);
 
     // 2. Try inserting into Supabase leads table
@@ -177,8 +182,7 @@ export async function submitLeadAction(data: LeadSubmissionInput) {
 
 // Fetch all leads for Admin Panel (Dual Storage)
 export async function getLeadsAction(): Promise<LeadRecord[]> {
-  const localList = readLocalLeads();
-
+  // 1. Try Supabase Table
   try {
     const supabaseAdmin = createAdminClient();
     const supabaseClient = await createClient();
@@ -191,21 +195,22 @@ export async function getLeadsAction(): Promise<LeadRecord[]> {
         .order("created_at", { ascending: false });
 
       if (!error && data && data.length > 0) {
-        const sbLeads = data as LeadRecord[];
-        const sbIds = new Set(sbLeads.map((l) => l.id));
-        const merged = [...sbLeads];
-        for (const local of localList) {
-          if (!sbIds.has(local.id)) {
-            merged.push(local);
-          }
-        }
-        return merged.sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
+        return data as LeadRecord[];
       }
     }
   } catch (err) {
-    console.warn("[getLeadsAction Error]", err);
+    console.warn("[getLeadsAction DB Notice]", err);
+  }
+
+  // 2. Read from Persistent Cloud Storage
+  const localList = readLocalLeads();
+  try {
+    const cloudLeads = await readCloudJson<LeadRecord[]>("leads.json", localList);
+    if (cloudLeads && cloudLeads.length > 0) {
+      return cloudLeads;
+    }
+  } catch (cloudErr) {
+    console.warn("[getLeadsAction Cloud Notice]", cloudErr);
   }
 
   return localList;
@@ -214,14 +219,14 @@ export async function getLeadsAction(): Promise<LeadRecord[]> {
 // Update Lead Status
 export async function updateLeadStatusAction(id: string, status: string) {
   try {
-    // 1. Update local
-    const localList = readLocalLeads();
-    const updated = localList.map((l) =>
+    const currentList = await getLeadsAction();
+    const updated = currentList.map((l) =>
       l.id === id ? { ...l, status: status as any } : l
     );
+    await writeCloudJson("leads.json", updated);
     writeLocalLeads(updated);
 
-    // 2. Try Supabase
+    // Try Supabase
     try {
       const client = createAdminClient() || (await createClient());
       if (client) {
@@ -247,14 +252,14 @@ export async function updateLeadStatusAction(id: string, status: string) {
 // Update Lead Admin Note
 export async function updateLeadNoteAction(id: string, admin_note: string) {
   try {
-    // 1. Update local
-    const localList = readLocalLeads();
-    const updated = localList.map((l) =>
+    const currentList = await getLeadsAction();
+    const updated = currentList.map((l) =>
       l.id === id ? { ...l, admin_note } : l
     );
+    await writeCloudJson("leads.json", updated);
     writeLocalLeads(updated);
 
-    // 2. Try Supabase
+    // Try Supabase
     try {
       const client = createAdminClient() || (await createClient());
       if (client) {
@@ -280,11 +285,12 @@ export async function updateLeadNoteAction(id: string, admin_note: string) {
 // Delete Lead
 export async function deleteLeadAction(id: string) {
   try {
-    // 1. Delete local
-    const localList = readLocalLeads().filter((l) => l.id !== id);
-    writeLocalLeads(localList);
+    const currentList = await getLeadsAction();
+    const updated = currentList.filter((l) => l.id !== id);
+    await writeCloudJson("leads.json", updated);
+    writeLocalLeads(updated);
 
-    // 2. Try Supabase
+    // Try Supabase
     try {
       const client = createAdminClient() || (await createClient());
       if (client) {

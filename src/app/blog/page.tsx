@@ -4,6 +4,9 @@ import Image from "next/image";
 import { BookOpen, Calendar, Clock, ArrowRight, ChevronRight, User } from "lucide-react";
 import { getPublicBlogPostsAction } from "@/app/actions/blogActions";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Sigorta & BES Rehberi | Hepsen Sigorta Blog",
   description: "Bireysel Emeklilik (BES), Hayat Sigortası ve Sağlık Sigortası konularında bilgilendirici rehberler ve uzman yazıları.",

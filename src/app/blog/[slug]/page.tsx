@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { getWhatsAppUrl, SITE_CONFIG } from "@/constants/siteConfig";
 import { getBlogPostBySlugAction, getPublicBlogPostsAction } from "@/app/actions/blogActions";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface Props {
   params: Promise<{ slug: string }>;
 }

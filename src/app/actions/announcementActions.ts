@@ -5,6 +5,7 @@ import path from "path";
 import os from "os";
 import { revalidatePath } from "next/cache";
 import { createAdminClient, createPublicClient } from "@/lib/supabase/server";
+import { readCloudJson, writeCloudJson } from "@/lib/supabase/storageStore";
 
 export interface AnnouncementInput {
   id?: string;
@@ -84,6 +85,7 @@ function writeLocalAnnouncements(list: AnnouncementRecord[]): void {
 
 // Get all announcements for Admin
 export async function getAnnouncementsAction(): Promise<AnnouncementRecord[]> {
+  // 1. Try Supabase Table
   try {
     const client = createAdminClient() || createPublicClient();
     if (client) {
@@ -97,11 +99,22 @@ export async function getAnnouncementsAction(): Promise<AnnouncementRecord[]> {
       }
     }
   } catch (err) {
-    console.warn("[getAnnouncementsAction Error]", err);
+    console.warn("[getAnnouncementsAction DB Notice]", err);
   }
 
-  // Fallback to local storage
-  return readLocalAnnouncements();
+  // 2. Read from Persistent Cloud Storage (Supabase Storage data/announcements.json)
+  const local = readLocalAnnouncements();
+  try {
+    const cloudAnnouncements = await readCloudJson<AnnouncementRecord[]>("announcements.json", local);
+    if (cloudAnnouncements && cloudAnnouncements.length > 0) {
+      return cloudAnnouncements;
+    }
+  } catch (cloudErr) {
+    console.warn("[getAnnouncementsAction Cloud Notice]", cloudErr);
+  }
+
+  // 3. Fallback to local storage
+  return local;
 }
 
 // Get public announcements
@@ -112,7 +125,7 @@ export async function getPublicAnnouncementsAction(): Promise<AnnouncementRecord
 // Save (Create or Update) Announcement
 export async function saveAnnouncementAction(input: AnnouncementInput) {
   try {
-    const localList = readLocalAnnouncements();
+    const currentList = await getAnnouncementsAction();
 
     const record: AnnouncementRecord = {
       id: input.id || "ann-" + Date.now(),
@@ -126,20 +139,24 @@ export async function saveAnnouncementAction(input: AnnouncementInput) {
       image: input.image?.trim() || null,
     };
 
-    // 1. Immediately persist locally (zero lag, infallible)
     if (input.id) {
-      const index = localList.findIndex((i) => i.id === input.id);
+      const index = currentList.findIndex((i) => i.id === input.id);
       if (index !== -1) {
-        localList[index] = { ...localList[index], ...record };
+        currentList[index] = { ...currentList[index], ...record };
       } else {
-        localList.unshift(record);
+        currentList.unshift(record);
       }
     } else {
-      localList.unshift(record);
+      currentList.unshift(record);
     }
-    writeLocalAnnouncements(localList);
 
-    // 2. Try Supabase write
+    // 1. Write to Persistent Cloud Storage
+    await writeCloudJson("announcements.json", currentList);
+
+    // 2. Write locally
+    writeLocalAnnouncements(currentList);
+
+    // 3. Try Supabase table
     try {
       const client = createAdminClient() || createPublicClient();
       if (client) {
@@ -186,11 +203,16 @@ export async function saveAnnouncementAction(input: AnnouncementInput) {
 // Delete Announcement
 export async function deleteAnnouncementAction(id: string) {
   try {
-    // 1. Delete locally
-    const localList = readLocalAnnouncements().filter((i) => i.id !== id);
-    writeLocalAnnouncements(localList);
+    const currentList = await getAnnouncementsAction();
+    const updated = currentList.filter((i) => i.id !== id);
 
-    // 2. Try Supabase
+    // 1. Write to Persistent Cloud Storage
+    await writeCloudJson("announcements.json", updated);
+
+    // 2. Write locally
+    writeLocalAnnouncements(updated);
+
+    // 3. Try Supabase
     try {
       const client = createAdminClient() || createPublicClient();
       if (client) {
