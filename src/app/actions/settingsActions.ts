@@ -204,10 +204,15 @@ export async function saveSiteSettingsAction(data: Partial<SiteSettingsData>): P
     }
 
     // 3. Invalidate Next.js cache so all layouts/pages immediately reflect new settings
-    revalidatePath("/", "layout");
-    revalidatePath("/iletisim");
-    revalidatePath("/hakkimizda");
-    revalidatePath("/admin/settings");
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/");
+      revalidatePath("/iletisim");
+      revalidatePath("/hakkimizda");
+      revalidatePath("/admin/settings");
+    } catch {
+      // outside request scope
+    }
 
     return { success: true, settings: updated };
   } catch (err: any) {

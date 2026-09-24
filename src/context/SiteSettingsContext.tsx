@@ -34,6 +34,27 @@ export function SiteSettingsProvider({
     if (initialSettings) {
       setSettings(initialSettings);
     }
+
+    // Always fetch latest settings in the background to ensure real-time accuracy
+    const fetchLatest = async () => {
+      try {
+        const res = await fetch("/api/settings", { cache: "no-store" });
+        if (res.ok) {
+          const fresh = await res.json();
+          if (fresh && fresh.name) {
+            setSettings(fresh);
+          }
+        }
+      } catch (err) {
+        // Fallback silently to initial settings
+      }
+    };
+
+    fetchLatest();
+
+    // Re-sync when user tabs back into the page
+    window.addEventListener("focus", fetchLatest);
+    return () => window.removeEventListener("focus", fetchLatest);
   }, [initialSettings]);
 
   const updateSettingsState = (newSettings: SiteSettingsData) => {

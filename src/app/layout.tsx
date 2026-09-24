@@ -5,6 +5,9 @@ import { PublicShell } from "@/components/layout/PublicShell";
 import { SITE_CONFIG } from "@/constants/siteConfig";
 import { getSiteSettingsAction } from "@/app/actions/settingsActions";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
