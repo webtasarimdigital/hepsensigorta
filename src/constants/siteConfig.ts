@@ -97,21 +97,34 @@ export const SITE_CONFIG: SiteConfig = {
 
 import rawSettings from "./siteSettings.json";
 
+export function formatPhoneRaw(phone?: string): string {
+  if (!phone) return "905457101419";
+  let cleaned = phone.replace(/\D/g, "");
+  if (!cleaned) return "905457101419";
+  if (cleaned.startsWith("00")) cleaned = cleaned.slice(2);
+  if (cleaned.startsWith("900")) cleaned = "90" + cleaned.slice(3);
+  if (cleaned.startsWith("90") && cleaned.length === 12) return cleaned;
+  if (cleaned.startsWith("0")) return "90" + cleaned.slice(1);
+  if (cleaned.length === 10) return "90" + cleaned;
+  if (cleaned.startsWith("90")) return cleaned;
+  return "90" + cleaned;
+}
+
 export function getWhatsAppUrl(message?: string): string {
   const defaultMsg = "Merhaba, Hepsen Sigorta web sitesinden ulaşıyorum. Bilgi almak istiyorum.";
   const encoded = encodeURIComponent(message || defaultMsg);
-  const waRaw = (rawSettings.whatsapp || SITE_CONFIG.whatsapp).replace(/[^0-9]/g, "");
-  return `https://wa.me/${waRaw || SITE_CONFIG.whatsappRaw}?text=${encoded}`;
+  const waRaw = formatPhoneRaw((rawSettings as any).whatsappRaw || rawSettings.whatsapp || SITE_CONFIG.whatsappRaw);
+  return `https://wa.me/${waRaw}?text=${encoded}`;
 }
 
 export function getPhoneHref(): string {
-  const pRaw = (rawSettings.phone || SITE_CONFIG.phone).replace(/[^0-9]/g, "");
-  return `tel:+${pRaw || SITE_CONFIG.phoneRaw}`;
+  const pRaw = formatPhoneRaw((rawSettings as any).phoneRaw || rawSettings.phone || SITE_CONFIG.phoneRaw);
+  return `tel:+${pRaw}`;
 }
 
 export function getLandlineHref(): string {
-  const lRaw = (rawSettings.landline || SITE_CONFIG.landline).replace(/[^0-9]/g, "");
-  return `tel:+${lRaw || SITE_CONFIG.landlineRaw}`;
+  const lRaw = formatPhoneRaw((rawSettings as any).landlineRaw || rawSettings.landline || SITE_CONFIG.landlineRaw);
+  return `tel:+${lRaw}`;
 }
 
 export function getEmailHref(email?: string): string {

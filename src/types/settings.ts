@@ -22,12 +22,17 @@ export interface SiteSettingsData {
   whatsappRaw: string;
 }
 
-export function formatPhoneRaw(phone: string): string {
+export function formatPhoneRaw(phone?: string): string {
   if (!phone) return "905457101419";
-  const cleaned = phone.replace(/\D/g, "");
-  if (cleaned.startsWith("90")) return cleaned;
+  let cleaned = phone.replace(/\D/g, "");
+  if (!cleaned) return "905457101419";
+  if (cleaned.startsWith("00")) cleaned = cleaned.slice(2);
+  if (cleaned.startsWith("900")) cleaned = "90" + cleaned.slice(3);
+  if (cleaned.startsWith("90") && cleaned.length === 12) return cleaned;
   if (cleaned.startsWith("0")) return "90" + cleaned.slice(1);
-  return cleaned ? (cleaned.length === 10 ? "90" + cleaned : cleaned) : "905457101419";
+  if (cleaned.length === 10) return "90" + cleaned;
+  if (cleaned.startsWith("90")) return cleaned;
+  return "90" + cleaned;
 }
 
 export const DEFAULT_SETTINGS: SiteSettingsData = {

@@ -4,6 +4,7 @@ import "./globals.css";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { SITE_CONFIG } from "@/constants/siteConfig";
 import { getSiteSettingsAction } from "@/app/actions/settingsActions";
+import { formatPhoneRaw } from "@/types/settings";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -158,7 +159,7 @@ export default async function RootLayout({
         },
         "sameAs": [
           "https://instagram.com/hepsensigorta",
-          `https://wa.me/${settings.whatsappRaw}`
+          `https://wa.me/${formatPhoneRaw(settings.whatsappRaw || settings.whatsapp)}`
         ],
         "hasOfferCatalog": {
           "@type": "OfferCatalog",

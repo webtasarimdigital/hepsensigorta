@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { SiteSettingsData, DEFAULT_SETTINGS } from "@/types/settings";
+import { SiteSettingsData, DEFAULT_SETTINGS, formatPhoneRaw } from "@/types/settings";
 
 interface SiteSettingsContextType {
   settings: SiteSettingsData;
@@ -15,9 +15,9 @@ interface SiteSettingsContextType {
 const SiteSettingsContext = createContext<SiteSettingsContextType>({
   settings: DEFAULT_SETTINGS,
   updateSettingsState: () => {},
-  getWhatsAppUrl: () => `https://wa.me/${DEFAULT_SETTINGS.whatsappRaw}`,
-  getPhoneHref: () => `tel:+${DEFAULT_SETTINGS.phoneRaw}`,
-  getLandlineHref: () => `tel:+${DEFAULT_SETTINGS.landlineRaw}`,
+  getWhatsAppUrl: () => `https://wa.me/${formatPhoneRaw(DEFAULT_SETTINGS.whatsappRaw)}`,
+  getPhoneHref: () => `tel:+${formatPhoneRaw(DEFAULT_SETTINGS.phoneRaw)}`,
+  getLandlineHref: () => `tel:+${formatPhoneRaw(DEFAULT_SETTINGS.landlineRaw)}`,
   getEmailHref: () => `mailto:${DEFAULT_SETTINGS.emailPrimary}`,
 });
 
@@ -64,15 +64,18 @@ export function SiteSettingsProvider({
   const getWhatsAppUrl = (message?: string) => {
     const defaultMsg = "Merhaba, Hepsen Sigorta web sitesinden ulaşıyorum. Bilgi almak istiyorum.";
     const text = encodeURIComponent(message || defaultMsg);
-    return `https://wa.me/${settings.whatsappRaw || DEFAULT_SETTINGS.whatsappRaw}?text=${text}`;
+    const rawNumber = formatPhoneRaw(settings.whatsappRaw || settings.whatsapp || DEFAULT_SETTINGS.whatsappRaw);
+    return `https://wa.me/${rawNumber}?text=${text}`;
   };
 
   const getPhoneHref = () => {
-    return `tel:+${settings.phoneRaw || DEFAULT_SETTINGS.phoneRaw}`;
+    const rawNumber = formatPhoneRaw(settings.phoneRaw || settings.phone || DEFAULT_SETTINGS.phoneRaw);
+    return `tel:+${rawNumber}`;
   };
 
   const getLandlineHref = () => {
-    return `tel:+${settings.landlineRaw || DEFAULT_SETTINGS.landlineRaw}`;
+    const rawNumber = formatPhoneRaw(settings.landlineRaw || settings.landline || DEFAULT_SETTINGS.landlineRaw);
+    return `tel:+${rawNumber}`;
   };
 
   const getEmailHref = (email?: string) => {
