@@ -74,6 +74,12 @@ export const metadata: Metadata = {
     description: SITE_CONFIG.meta.description,
     images: [`${SITE_CONFIG.meta.url}/logo-hepsen-sigorta.png`],
   },
+  alternates: {
+    canonical: SITE_CONFIG.meta.url,
+  },
+  verification: {
+    google: "7x8VTPAzYf_IXYBMh_Iv-W5YE9rKEMqtpbOrwiLSU1o",
+  },
   robots: {
     index: true,
     follow: true,
@@ -221,6 +227,10 @@ export default async function RootLayout({
   return (
     <html lang="tr" className={`${inter.variable} ${plusJakarta.variable}`}>
       <head>
+        <meta
+          name="google-site-verification"
+          content="7x8VTPAzYf_IXYBMh_Iv-W5YE9rKEMqtpbOrwiLSU1o"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }}
