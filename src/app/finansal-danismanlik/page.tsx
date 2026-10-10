@@ -20,7 +20,7 @@ const service = SERVICES.find((s) => s.slug === "finansal-danismanlik")!;
 
 export const metadata: Metadata = {
   title: "Finansal Planlama ve Tasarruf Danışmanlığı",
-  description: "Uzun vadeli tasarruf planlaması, emeklilik hedefleri ve aile bütçesi risk yönetimi. Merve Doğan liderliğinde Hepsen Sigorta.",
+  description: "Uzun vadeli tasarruf planlaması, emeklilik hedefleri ve aile bütçesi risk yönetimi. Fon Yöneticilerimiz Merve Doğan ve Elif Çakır liderliğinde Hepsen Sigorta.",
   keywords: [
     "Finansal Danışmanlık",
     "Tasarruf Planlaması",
@@ -142,7 +142,7 @@ export default function FinansalDanismanlikPage() {
                 </div>
                 <div>
                   <div className="text-xs font-semibold text-slate-300">Fon Yöneticisi Rehberliği</div>
-                  <div className="text-sm font-bold text-white">Merve Doğan İle Birebir</div>
+                  <div className="text-sm font-bold text-white">Merve Doğan & Elif Çakır İle Birebir</div>
                 </div>
               </div>
               <ul className="space-y-2.5 text-xs text-slate-200">

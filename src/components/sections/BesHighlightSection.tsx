@@ -112,7 +112,7 @@ export function BesHighlightSection() {
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Fon Yöneticisi Merve Doğan ile doğrudan birebir iletişim</span>
+                  <span>Fon Yöneticilerimiz Merve Doğan ve Elif Çakır ile doğrudan birebir iletişim</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />

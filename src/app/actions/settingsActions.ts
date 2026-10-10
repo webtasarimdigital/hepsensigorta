@@ -128,14 +128,31 @@ export async function getSiteSettingsAction(): Promise<SiteSettingsData> {
   try {
     const cloudSettings = await readCloudJson<SiteSettingsData>("siteSettings.json", local);
     if (cloudSettings && cloudSettings.name) {
-      return cloudSettings;
+      return {
+        ...DEFAULT_SETTINGS,
+        ...local,
+        ...cloudSettings,
+        phoneRaw: formatPhoneRaw(cloudSettings.phone || local.phone),
+        landlineRaw: formatPhoneRaw(cloudSettings.landline || local.landline),
+        whatsappRaw: formatPhoneRaw(cloudSettings.whatsapp || local.whatsapp),
+        person2PhoneRaw: formatPhoneRaw(cloudSettings.person2Phone || local.person2Phone || DEFAULT_SETTINGS.person2Phone),
+        person2WhatsappRaw: formatPhoneRaw(cloudSettings.person2Whatsapp || local.person2Whatsapp || DEFAULT_SETTINGS.person2Whatsapp),
+      };
     }
   } catch (cloudErr) {
     console.warn("[getSiteSettingsAction Cloud Notice]", cloudErr);
   }
 
   // 3. Fallback to local settings JSON or default
-  return local;
+  return {
+    ...DEFAULT_SETTINGS,
+    ...local,
+    phoneRaw: formatPhoneRaw(local.phone),
+    landlineRaw: formatPhoneRaw(local.landline),
+    whatsappRaw: formatPhoneRaw(local.whatsapp),
+    person2PhoneRaw: formatPhoneRaw(local.person2Phone || DEFAULT_SETTINGS.person2Phone),
+    person2WhatsappRaw: formatPhoneRaw(local.person2Whatsapp || DEFAULT_SETTINGS.person2Whatsapp),
+  };
 }
 
 export async function saveSiteSettingsAction(data: Partial<SiteSettingsData>): Promise<{
@@ -149,6 +166,8 @@ export async function saveSiteSettingsAction(data: Partial<SiteSettingsData>): P
     const phone = data.phone !== undefined ? data.phone : current.phone;
     const landline = data.landline !== undefined ? data.landline : current.landline;
     const whatsapp = data.whatsapp !== undefined ? data.whatsapp : current.whatsapp;
+    const person2Phone = data.person2Phone !== undefined ? data.person2Phone : current.person2Phone;
+    const person2Whatsapp = data.person2Whatsapp !== undefined ? data.person2Whatsapp : current.person2Whatsapp;
 
     const updated: SiteSettingsData = {
       ...current,
@@ -159,6 +178,10 @@ export async function saveSiteSettingsAction(data: Partial<SiteSettingsData>): P
       phoneRaw: formatPhoneRaw(phone),
       landlineRaw: formatPhoneRaw(landline),
       whatsappRaw: formatPhoneRaw(whatsapp),
+      person2Phone,
+      person2Whatsapp,
+      person2PhoneRaw: formatPhoneRaw(person2Phone),
+      person2WhatsappRaw: formatPhoneRaw(person2Whatsapp),
     };
 
     // 1. Write to Persistent Cloud Storage

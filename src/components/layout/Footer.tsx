@@ -36,8 +36,13 @@ export function Footer() {
             </div>
 
             {/* Consultant Info */}
-            <div className="text-xs text-slate-400 pt-1">
-              <span className="text-white font-medium">{settings.personName}</span> — {settings.personTitle}
+            <div className="text-xs text-slate-400 pt-1 space-y-1">
+              <div>
+                <span className="text-white font-medium">{settings.personName}</span> — {settings.personTitle}
+              </div>
+              <div>
+                <span className="text-white font-medium">{settings.person2Name || "Elif ÇAKIR"}</span> — {settings.person2Title || "Fon Yöneticisi"}
+              </div>
             </div>
           </div>
 

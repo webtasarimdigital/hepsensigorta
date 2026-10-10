@@ -20,6 +20,14 @@ export interface SiteSettingsData {
   phoneRaw: string;
   landlineRaw: string;
   whatsappRaw: string;
+  // 2. Danışman / Fon Yöneticisi (Elif ÇAKIR)
+  person2Name?: string;
+  person2Title?: string;
+  person2Phone?: string;
+  person2PhoneRaw?: string;
+  person2Whatsapp?: string;
+  person2WhatsappRaw?: string;
+  person2Email?: string;
 }
 
 export function formatPhoneRaw(phone?: string): string {
@@ -55,4 +63,11 @@ export const DEFAULT_SETTINGS: SiteSettingsData = {
   phoneRaw: SITE_CONFIG.phoneRaw,
   landlineRaw: SITE_CONFIG.landlineRaw,
   whatsappRaw: SITE_CONFIG.whatsappRaw,
+  person2Name: "Elif ÇAKIR",
+  person2Title: "Fon Yöneticisi",
+  person2Phone: "0543 397 56 47",
+  person2PhoneRaw: "905433975647",
+  person2Whatsapp: "0543 397 56 47",
+  person2WhatsappRaw: "905433975647",
+  person2Email: "elif.cakir@hepsensigorta.com",
 };

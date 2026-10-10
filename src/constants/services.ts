@@ -289,7 +289,7 @@ export const SERVICES: ServiceData[] = [
     badge: "Bilinçli Tasarruf & Risk Yönetimi",
     tagline: "Gelir ve tasarruflarınızı doğru yönetin, emeklilik ve güvence hedeflerinize planlı şekilde ilerleyin.",
     shortDescription: "Ailenizin ve işletmenizin uzun vadeli hedeflerine uygun birikim disiplini oluşturun; riskleri, sigorta ihtiyaçlarını ve emeklilik planını bir bütün olarak yönetin.",
-    heroDescription: "Finansal Danışmanlık yaklaşımımız; karmaşık finansal terimlerden uzak, tamamen sizin ve ailenizin gerçek hedeflerine odaklanan bir yol haritasıdır. Fon Yöneticisi Merve Doğan liderliğinde, tasarruflarınızın ve sigorta poliçelerinizin birbirini nasıl tamamlayacağını birlikte planlıyoruz.",
+    heroDescription: "Finansal Danışmanlık yaklaşımımız; karmaşık finansal terimlerden uzak, tamamen sizin ve ailenizin gerçek hedeflerine odaklanan bir yol haritasıdır. Fon Yöneticilerimiz Merve Doğan ve Elif Çakır liderliğinde, tasarruflarınızın ve sigorta poliçelerinizin birbirini nasıl tamamlayacağını birlikte planlıyoruz.",
     icon: "LineChart",
     whatsappMessage: "Merhaba, Hepsen Sigorta web sitesinden ulaşıyorum. Finansal Danışmanlık ve tasarruf planlaması hakkında görüşmek istiyorum.",
     benefits: [

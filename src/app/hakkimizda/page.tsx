@@ -13,13 +13,13 @@ import {
   HeartHandshake,
   CheckCircle2,
 } from "lucide-react";
-import { SITE_CONFIG, getWhatsAppUrl, getPhoneHref, getEmailHref } from "@/constants/siteConfig";
+import { SITE_CONFIG, getWhatsAppUrl, getAdvisorWhatsAppUrl, getPhoneHref, getEmailHref, formatPhoneRaw } from "@/constants/siteConfig";
 import { getSiteSettingsAction } from "@/app/actions/settingsActions";
 import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
-  title: "Hakkımızda | Merve Doğan & Hepsen Sigorta",
-  description: "Hepsen Sigorta, Fon Yöneticisi Merve Doğan liderliğinde Allianz Yetkili Acentesi olarak Kadıköy Kozyatağı'nda ve tüm Türkiye'de hizmet vermektedir.",
+  title: "Hakkımızda | Merve Doğan & Elif Çakır - Hepsen Sigorta",
+  description: "Hepsen Sigorta, Fon Yöneticilerimiz Merve Doğan ve Elif Çakır liderliğinde Allianz Yetkili Acentesi olarak Kadıköy Kozyatağı'nda ve tüm Türkiye'de hizmet vermektedir.",
 };
 
 export default async function HakkimizdaPage() {
@@ -56,36 +56,92 @@ export default async function HakkimizdaPage() {
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Card: Merve Doğan */}
-            <div className="lg:col-span-5">
-              <div className="rounded-3xl bg-[#0B1F3A] text-white p-8 sm:p-10 shadow-xl border border-white/10 relative overflow-hidden">
-                <div className="w-20 h-20 rounded-2xl bg-emerald-500 flex items-center justify-center text-white text-2xl font-black mb-6">
-                  MD
+            {/* Left Column: Merve Doğan & Elif Çakır Cards */}
+            <div className="lg:col-span-5 space-y-6">
+              {/* Card 1: Merve Doğan */}
+              <div className="rounded-3xl bg-[#0B1F3A] text-white p-7 sm:p-8 shadow-xl border border-white/10 relative overflow-hidden">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center text-white text-2xl font-black shrink-0">
+                    MD
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest block">
+                      Acente Yetkilisi
+                    </span>
+                    <h3 className="text-xl font-black text-white">{settings.personName}</h3>
+                    <p className="text-xs text-slate-300">{settings.personTitle}</p>
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-1">
-                  Acente Yetkilisi
-                </span>
-                <h3 className="text-2xl font-black text-white">{settings.personName}</h3>
-                <p className="text-sm text-slate-300 mb-6">{settings.personTitle}</p>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2 mb-6 text-xs text-slate-300 leading-relaxed">
+                <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 mb-4 text-xs text-slate-300 leading-relaxed">
                   <p>
                     Allianz Yetkili Acentesi olarak Bireysel Emeklilik, Hayat Sigortası ve Sağlık Sigortası alanlarında danışanlarımızın geleceğini güvenceye alıyoruz.
                   </p>
                 </div>
 
-                <div className="space-y-2 text-xs border-t border-white/10 pt-4">
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-emerald-400" />
-                    <span>{settings.phone}</span>
+                <div className="space-y-2 text-xs border-t border-white/10 pt-3">
+                  <div className="flex items-center justify-between">
+                    <a href={`tel:+${formatPhoneRaw(settings.phoneRaw || settings.phone)}`} className="flex items-center gap-2 hover:text-emerald-400 transition-colors font-mono">
+                      <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{settings.phone}</span>
+                    </a>
+                    <a
+                      href={getAdvisorWhatsAppUrl(settings.phoneRaw || settings.phone, "Merhaba Merve Hanım, Hepsen Sigorta hakkında bilgi almak ve görüşmek istiyorum.")}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#25D366] text-white font-semibold text-[11px] hover:bg-[#20bd5a] transition-colors"
+                    >
+                      <MessageCircle className="w-3 h-3 fill-white" />
+                      <span>WhatsApp</span>
+                    </a>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-emerald-400" />
+                    <Mail className="w-3.5 h-3.5 text-emerald-400" />
                     <span>{settings.emailPrimary}</span>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span className="leading-snug">{settings.addressFull}</span>
+                </div>
+              </div>
+
+              {/* Card 2: Elif Çakır (Altında) */}
+              <div className="rounded-3xl bg-[#0F284A] text-white p-7 sm:p-8 shadow-xl border border-white/10 relative overflow-hidden">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-white text-2xl font-black shrink-0">
+                    EÇ
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest block">
+                      Fon Yöneticisi & Danışman
+                    </span>
+                    <h3 className="text-xl font-black text-white">{settings.person2Name || "Elif ÇAKIR"}</h3>
+                    <p className="text-xs text-slate-300">{settings.person2Title || "Fon Yöneticisi"}</p>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 mb-4 text-xs text-slate-300 leading-relaxed">
+                  <p>
+                    Bireysel Emeklilik fon dağılımı, portföy analizi ve tasarruf hedeflerinize en uygun sigorta çözümleri için yanınızdayız.
+                  </p>
+                </div>
+
+                <div className="space-y-2 text-xs border-t border-white/10 pt-3">
+                  <div className="flex items-center justify-between">
+                    <a href={`tel:+${formatPhoneRaw(settings.person2PhoneRaw || settings.person2Phone || "905433975647")}`} className="flex items-center gap-2 hover:text-emerald-400 transition-colors font-mono">
+                      <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{settings.person2Phone || "0543 397 56 47"}</span>
+                    </a>
+                    <a
+                      href={getAdvisorWhatsAppUrl(settings.person2PhoneRaw || settings.person2Phone || "905433975647", "Merhaba Elif Hanım, Hepsen Sigorta hakkında bilgi almak ve görüşmek istiyorum.")}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#25D366] text-white font-semibold text-[11px] hover:bg-[#20bd5a] transition-colors"
+                    >
+                      <MessageCircle className="w-3 h-3 fill-white" />
+                      <span>WhatsApp</span>
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{settings.person2Email || "elif.cakir@hepsensigorta.com"}</span>
                   </div>
                 </div>
               </div>
@@ -105,7 +161,7 @@ export default async function HakkimizdaPage() {
                   Hepsen Sigorta bu karmaşıklığı ortadan kaldırmak için kuruldu. &ldquo;Seni Düşünen Sigorta&rdquo; mottomuzun temelinde, ürün satmaktan önce danışanımızın gerçek durumunu, bütçesini ve yarınlara dair planlarını dinlemek yatar.
                 </p>
                 <p>
-                  Dünyanın ve Türkiye&apos;nin lider finans devlerinden Allianz&apos;ın güvencesiyle; Bireysel Emeklilik (BES) fon yönetiminden tamamlayıcı sağlık poliçelerine kadar her detayı şeffaf şekilde masaya yatırıyoruz.
+                  Dünyanın ve Türkiye&apos;nin lider finans devlerinden Allianz&apos;ın güvencesiyle; Fon Yöneticilerimiz <strong className="text-slate-900 font-semibold">Merve Doğan</strong> ve <strong className="text-slate-900 font-semibold">Elif Çakır</strong> liderliğinde Bireysel Emeklilik (BES) fon yönetiminden tamamlayıcı sağlık poliçelerine kadar her detayı şeffaf şekilde masaya yatırıyoruz.
                 </p>
               </div>
 
@@ -140,13 +196,24 @@ export default async function HakkimizdaPage() {
                 </Link>
 
                 <a
-                  href={getWhatsAppUrl("Merhaba Merve Hanım, Hepsen Sigorta hakkında bilgi almak ve görüşmek istiyorum.")}
+                  href={getAdvisorWhatsAppUrl(settings.phoneRaw || settings.phone, "Merhaba Merve Hanım, Hepsen Sigorta hakkında bilgi almak ve görüşmek istiyorum.")}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <Button variant="whatsapp" size="md" className="gap-2">
                     <MessageCircle className="w-4 h-4 fill-white text-[#25D366]" />
-                    <span>WhatsApp&apos;tan Ulaşın</span>
+                    <span>WhatsApp • Merve Hanım</span>
+                  </Button>
+                </a>
+
+                <a
+                  href={getAdvisorWhatsAppUrl(settings.person2PhoneRaw || settings.person2Phone || "905433975647", "Merhaba Elif Hanım, Hepsen Sigorta hakkında bilgi almak ve görüşmek istiyorum.")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="whatsapp" size="md" className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+                    <MessageCircle className="w-4 h-4 fill-white text-white" />
+                    <span>WhatsApp • Elif Hanım</span>
                   </Button>
                 </a>
               </div>

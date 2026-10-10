@@ -185,7 +185,7 @@ export function QuickQuoteSection({
 
             <p className="text-xs sm:text-sm text-slate-300 leading-normal max-w-2xl">
               {subtitle ||
-                "İhtiyacınızı ve temel bilgilerinizi paylaşın; Fon Yöneticisi Merve Doğan ve uzman ekibimiz en uygun seçenekleri hazırlayıp size dönsün."}
+                "İhtiyacınızı ve temel bilgilerinizi paylaşın; Fon Yöneticilerimiz Merve Doğan, Elif Çakır ve uzman ekibimiz en uygun seçenekleri hazırlayıp size dönsün."}
             </p>
           </div>
         )}

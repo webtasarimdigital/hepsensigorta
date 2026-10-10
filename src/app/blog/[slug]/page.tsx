@@ -166,7 +166,7 @@ export default async function BlogPostPage({ params }: Props) {
               </span>
               <h3 className="text-xl font-bold">Bu Konuda Detaylı Bilgi İster misiniz?</h3>
               <p className="text-xs text-slate-300">
-                Uzmanımız Merve Doğan ile görüşerek size en uygun seçenekleri değerlendirebilirsiniz.
+                Fon Yöneticilerimiz Merve Doğan ve Elif Çakır ile görüşerek size en uygun seçenekleri değerlendirebilirsiniz.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">

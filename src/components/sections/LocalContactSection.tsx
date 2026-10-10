@@ -39,7 +39,7 @@ export function LocalContactSection() {
                 </div>
               </div>
 
-              {/* Cell Phone */}
+              {/* Merve Doğan Cell Phone */}
               <a
                 href={getPhoneHref()}
                 className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-emerald-500 transition-colors flex items-start gap-3 group"
@@ -48,22 +48,36 @@ export function LocalContactSection() {
                   <Phone className="w-5 h-5" />
                 </div>
                 <div className="text-xs sm:text-sm">
-                  <span className="font-bold text-[#0B1F3A] block mb-0.5">Yetkili / Danışman</span>
-                  <span className="text-slate-600 font-semibold">{SITE_CONFIG.phone}</span>
+                  <span className="font-bold text-[#0B1F3A] block mb-0.5">Merve DOĞAN • Fon Yöneticisi</span>
+                  <span className="text-slate-600 font-semibold font-mono">{SITE_CONFIG.phone}</span>
                 </div>
               </a>
 
-              {/* Landline */}
+              {/* Elif Çakır Cell Phone */}
               <a
-                href={getLandlineHref()}
+                href="tel:+905433975647"
                 className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-emerald-500 transition-colors flex items-start gap-3 group"
               >
                 <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 shrink-0 group-hover:bg-[#0B1F3A] group-hover:text-emerald-400 transition-colors">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div className="text-xs sm:text-sm">
+                  <span className="font-bold text-[#0B1F3A] block mb-0.5">Elif ÇAKIR • Fon Yöneticisi</span>
+                  <span className="text-slate-600 font-semibold font-mono">0543 397 56 47</span>
+                </div>
+              </a>
+
+              {/* Landline */}
+              <a
+                href={getLandlineHref()}
+                className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-emerald-500 transition-colors flex items-start gap-3 sm:col-span-2 group"
+              >
+                <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 shrink-0 group-hover:bg-[#0B1F3A] group-hover:text-emerald-400 transition-colors">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div className="text-xs sm:text-sm">
                   <span className="font-bold text-[#0B1F3A] block mb-0.5">Sabit / Çağrı Hattı</span>
-                  <span className="text-slate-600 font-semibold">{SITE_CONFIG.landline}</span>
+                  <span className="text-slate-600 font-semibold font-mono">{SITE_CONFIG.landline}</span>
                 </div>
               </a>
 

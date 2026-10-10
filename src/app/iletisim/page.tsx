@@ -15,11 +15,12 @@ import {
   Building,
 } from "lucide-react";
 import { useSiteSettings } from "@/context/SiteSettingsContext";
+import { formatPhoneRaw } from "@/constants/siteConfig";
 import { Button } from "@/components/ui/Button";
 import { submitLeadAction } from "@/app/actions/leadActions";
 
 export default function IletisimPage() {
-  const { settings, getPhoneHref, getLandlineHref, getEmailHref, getWhatsAppUrl } = useSiteSettings();
+  const { settings, getPhoneHref, getLandlineHref, getEmailHref, getWhatsAppUrl, getAdvisorWhatsAppUrl } = useSiteSettings();
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -90,19 +91,85 @@ export default function IletisimPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
             {/* Left: Contact Info & Map (5 cols) */}
             <div className="lg:col-span-5 space-y-6">
-              {/* Agency Card */}
-              <div className="bg-white rounded-3xl p-7 border border-slate-200/90 shadow-sm space-y-5">
+              {/* Agency & Advisors Card */}
+              <div className="bg-white rounded-3xl p-7 border border-slate-200/90 shadow-sm space-y-6">
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                   <div>
                     <h3 className="text-xl font-bold text-[#0B1F3A]">{settings.name}</h3>
-                    <p className="text-xs text-slate-500">{settings.personName} • {settings.personTitle}</p>
+                    <p className="text-xs text-slate-500">Merve DOĞAN & Elif ÇAKIR • Fon Yöneticileri</p>
                   </div>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                     Allianz Yetkili Acentesi
                   </span>
                 </div>
 
-                <div className="space-y-4 text-sm text-slate-700">
+                {/* Direct Advisors Section */}
+                <div className="space-y-3">
+                  <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block">
+                    Fon Yöneticilerimiz & Doğrudan İletişim
+                  </span>
+
+                  {/* 1. Merve Doğan */}
+                  <div className="p-3.5 rounded-2xl bg-[#F6F8FA] border border-slate-200/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-[#0B1F3A] text-sm">{settings.personName || "Merve DOĞAN"}</h4>
+                        <p className="text-[11px] text-slate-500">{settings.personTitle || "Fon Yöneticisi"} • Acente Yetkilisi</p>
+                      </div>
+                      <a
+                        href={getAdvisorWhatsAppUrl(settings.phoneRaw || settings.phone, "Merhaba Merve Hanım, Hepsen Sigorta üzerinden bilgi almak istiyorum.")}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#25D366] text-white font-semibold text-[11px] hover:bg-[#20bd5a] transition-colors shadow-sm"
+                      >
+                        <MessageCircle className="w-3 h-3 fill-white" />
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 pt-1 border-t border-slate-200/60">
+                      <a href={`tel:+${formatPhoneRaw(settings.phoneRaw || settings.phone)}`} className="flex items-center gap-1.5 hover:text-emerald-700 font-mono font-medium">
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{settings.phone}</span>
+                      </a>
+                      <a href={`mailto:${settings.emailPrimary}`} className="flex items-center gap-1.5 hover:text-emerald-700">
+                        <Mail className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{settings.emailPrimary}</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* 2. Elif Çakır (Altında) */}
+                  <div className="p-3.5 rounded-2xl bg-[#F6F8FA] border border-slate-200/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-[#0B1F3A] text-sm">{settings.person2Name || "Elif ÇAKIR"}</h4>
+                        <p className="text-[11px] text-slate-500">{settings.person2Title || "Fon Yöneticisi"} • Acente Danışmanı</p>
+                      </div>
+                      <a
+                        href={getAdvisorWhatsAppUrl(settings.person2PhoneRaw || settings.person2Phone || "905433975647", "Merhaba Elif Hanım, Hepsen Sigorta üzerinden bilgi almak istiyorum.")}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#25D366] text-white font-semibold text-[11px] hover:bg-[#20bd5a] transition-colors shadow-sm"
+                      >
+                        <MessageCircle className="w-3 h-3 fill-white" />
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 pt-1 border-t border-slate-200/60">
+                      <a href={`tel:+${formatPhoneRaw(settings.person2PhoneRaw || settings.person2Phone || "905433975647")}`} className="flex items-center gap-1.5 hover:text-emerald-700 font-mono font-medium">
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{settings.person2Phone || "0543 397 56 47"}</span>
+                      </a>
+                      <a href={`mailto:${settings.person2Email || "elif.cakir@hepsensigorta.com"}`} className="flex items-center gap-1.5 hover:text-emerald-700">
+                        <Mail className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{settings.person2Email || "elif.cakir@hepsensigorta.com"}</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Office & General Lines */}
+                <div className="space-y-3.5 text-sm text-slate-700 pt-2 border-t border-slate-100">
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                     <div>
@@ -114,31 +181,21 @@ export default function IletisimPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-emerald-600 shrink-0" />
-                    <div>
-                      <span className="font-semibold block text-slate-900">Yetkili Telefon</span>
-                      <a href={getPhoneHref()} className="text-xs text-slate-600 hover:text-emerald-700 font-medium">
-                        {settings.phone}
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
                     <Phone className="w-5 h-5 text-slate-400 shrink-0" />
                     <div>
                       <span className="font-semibold block text-slate-900">Sabit / Çağrı Hattı</span>
-                      <a href={getLandlineHref()} className="text-xs text-slate-600 hover:text-emerald-700">
+                      <a href={getLandlineHref()} className="text-xs text-slate-600 hover:text-emerald-700 font-mono">
                         {settings.landline}
                       </a>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <Mail className="w-5 h-5 text-slate-400 shrink-0" />
                     <div>
-                      <span className="font-semibold block text-slate-900">E-posta</span>
-                      <a href={getEmailHref(settings.emailPrimary)} className="text-xs text-slate-600 hover:text-emerald-700">
-                        {settings.emailPrimary}
+                      <span className="font-semibold block text-slate-900">Genel İletişim E-posta</span>
+                      <a href={`mailto:${settings.emailContact || "info@hepsensigorta.com"}`} className="text-xs text-slate-600 hover:text-emerald-700">
+                        {settings.emailContact || "info@hepsensigorta.com"}
                       </a>
                     </div>
                   </div>

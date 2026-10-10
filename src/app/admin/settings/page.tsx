@@ -267,6 +267,76 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
+        {/* 2. Danışman / Fon Yöneticisi Bilgileri (Elif ÇAKIR) */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
+          <div className="pb-3 border-b border-slate-100 flex items-center justify-between">
+            <h2 className="text-base font-bold text-[#0B1F3A] flex items-center gap-2">
+              <User className="w-4 h-4 text-emerald-600" />
+              <span>2. Danışman / Fon Yöneticisi Bilgileri (Elif ÇAKIR)</span>
+            </h2>
+            <span className="text-[11px] text-emerald-700 bg-emerald-50 font-semibold px-2.5 py-1 rounded-lg border border-emerald-200">
+              Sitede Merve Doğan ile Birlikte Listelenir
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">2. Danışman Adı</label>
+              <input
+                type="text"
+                value={settings.person2Name || ""}
+                onChange={(e) => setSettings({ ...settings, person2Name: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                placeholder="Örn: Elif ÇAKIR"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">Unvanı</label>
+              <input
+                type="text"
+                value={settings.person2Title || ""}
+                onChange={(e) => setSettings({ ...settings, person2Title: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                placeholder="Örn: Fon Yöneticisi"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">Cep Telefonu / Danışman Hattı</label>
+              <input
+                type="text"
+                value={settings.person2Phone || ""}
+                onChange={(e) => setSettings({ ...settings, person2Phone: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-mono"
+                placeholder="0543 397 56 47"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-slate-700">WhatsApp Numarası</label>
+              <input
+                type="text"
+                value={settings.person2Whatsapp || ""}
+                onChange={(e) => setSettings({ ...settings, person2Whatsapp: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 font-mono"
+                placeholder="0543 397 56 47"
+              />
+            </div>
+
+            <div className="space-y-1 sm:col-span-2">
+              <label className="font-bold text-slate-700">E-posta Adresi</label>
+              <input
+                type="email"
+                value={settings.person2Email || ""}
+                onChange={(e) => setSettings({ ...settings, person2Email: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                placeholder="elif.cakir@hepsensigorta.com"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Legal & Regulatory Info Card */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
           <div className="pb-3 border-b border-slate-100 flex items-center justify-between">

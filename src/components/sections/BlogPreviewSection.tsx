@@ -29,7 +29,7 @@ export async function BlogPreviewSection() {
               Güncel Blog Yazıları
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl">
-              Bireysel Emeklilik, fon dağılımı ve sigorta dünyasından Fon Yöneticisi Merve Doğan imzalı güncel rehberler.
+              Bireysel Emeklilik, fon dağılımı ve sigorta dünyasından Fon Yöneticilerimiz Merve Doğan ve Elif Çakır imzalı güncel rehberler.
             </p>
           </div>
           <Link

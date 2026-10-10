@@ -4,6 +4,16 @@ export interface SiteConfig {
   slogan: string;
   personName: string;
   personTitle: string;
+  person2?: {
+    name: string;
+    title: string;
+    phone: string;
+    phoneRaw: string;
+    whatsapp: string;
+    whatsappRaw: string;
+    email: string;
+    initials: string;
+  };
   phone: string;
   phoneRaw: string;
   landline: string;
@@ -47,6 +57,16 @@ export const SITE_CONFIG: SiteConfig = {
   slogan: "Seni Düşünen Sigorta",
   personName: "Merve DOĞAN",
   personTitle: "Fon Yöneticisi",
+  person2: {
+    name: "Elif ÇAKIR",
+    title: "Fon Yöneticisi",
+    phone: "0543 397 56 47",
+    phoneRaw: "905433975647",
+    whatsapp: "0543 397 56 47",
+    whatsappRaw: "905433975647",
+    email: "elif.cakir@hepsensigorta.com",
+    initials: "EÇ",
+  },
   phone: "0545 710 14 19",
   phoneRaw: "905457101419",
   landline: "0850 223 98 66",
@@ -129,4 +149,54 @@ export function getLandlineHref(): string {
 
 export function getEmailHref(email?: string): string {
   return `mailto:${email || rawSettings.emailContact || rawSettings.emailPrimary || SITE_CONFIG.emailContact}`;
+}
+
+export interface AdvisorItem {
+  id: string;
+  name: string;
+  title: string;
+  role: string;
+  phone: string;
+  phoneRaw: string;
+  whatsapp: string;
+  whatsappRaw: string;
+  email: string;
+  initials: string;
+  quote?: string;
+}
+
+export const ADVISORS: AdvisorItem[] = [
+  {
+    id: "merve-dogan",
+    name: "Merve DOĞAN",
+    title: "Fon Yöneticisi",
+    role: "Acente Yetkilisi",
+    phone: "0545 710 14 19",
+    phoneRaw: "905457101419",
+    whatsapp: "0545 710 14 19",
+    whatsappRaw: "905457101419",
+    email: "merve.dogan@hepsensigorta.com",
+    initials: "MD",
+    quote: "Bireysel emeklilik ve sigorta ürünlerinde en önemli unsur güvendir. Amacımız sadece bir poliçe düzenlemek değil, yıllar boyu birikimlerinizi ve sağlığınızı gönül rahatlığıyla bize emanet edebileceğiniz bir yol arkadaşlığı kurmaktır.",
+  },
+  {
+    id: "elif-cakir",
+    name: "Elif ÇAKIR",
+    title: "Fon Yöneticisi",
+    role: "Fon Yöneticisi",
+    phone: "0543 397 56 47",
+    phoneRaw: "905433975647",
+    whatsapp: "0543 397 56 47",
+    whatsappRaw: "905433975647",
+    email: "elif.cakir@hepsensigorta.com",
+    initials: "EÇ",
+    quote: "Doğru fon dağılımı ve kişiye özel tasarruf stratejileriyle geleceğinizi güvence altına alıyoruz. Size en uygun finansal planlama için her zaman yanınızdayız.",
+  },
+];
+
+export function getAdvisorWhatsAppUrl(phoneRaw?: string, message?: string): string {
+  const defaultMsg = "Merhaba, Hepsen Sigorta web sitesinden ulaşıyorum. Bilgi almak istiyorum.";
+  const encoded = encodeURIComponent(message || defaultMsg);
+  const waRaw = formatPhoneRaw(phoneRaw || SITE_CONFIG.whatsappRaw);
+  return `https://wa.me/${waRaw}?text=${encoded}`;
 }

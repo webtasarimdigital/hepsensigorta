@@ -7,6 +7,7 @@ interface SiteSettingsContextType {
   settings: SiteSettingsData;
   updateSettingsState: (newSettings: SiteSettingsData) => void;
   getWhatsAppUrl: (message?: string) => string;
+  getAdvisorWhatsAppUrl: (phoneRaw?: string, message?: string) => string;
   getPhoneHref: () => string;
   getLandlineHref: () => string;
   getEmailHref: (email?: string) => string;
@@ -16,6 +17,7 @@ const SiteSettingsContext = createContext<SiteSettingsContextType>({
   settings: DEFAULT_SETTINGS,
   updateSettingsState: () => {},
   getWhatsAppUrl: () => `https://wa.me/${formatPhoneRaw(DEFAULT_SETTINGS.whatsappRaw)}`,
+  getAdvisorWhatsAppUrl: (phoneRaw?: string) => `https://wa.me/${formatPhoneRaw(phoneRaw || DEFAULT_SETTINGS.whatsappRaw)}`,
   getPhoneHref: () => `tel:+${formatPhoneRaw(DEFAULT_SETTINGS.phoneRaw)}`,
   getLandlineHref: () => `tel:+${formatPhoneRaw(DEFAULT_SETTINGS.landlineRaw)}`,
   getEmailHref: () => `mailto:${DEFAULT_SETTINGS.emailPrimary}`,
@@ -68,6 +70,13 @@ export function SiteSettingsProvider({
     return `https://wa.me/${rawNumber}?text=${text}`;
   };
 
+  const getAdvisorWhatsAppUrl = (phoneRaw?: string, message?: string) => {
+    const defaultMsg = "Merhaba, Hepsen Sigorta web sitesinden ulaşıyorum. Bilgi almak istiyorum.";
+    const text = encodeURIComponent(message || defaultMsg);
+    const rawNumber = formatPhoneRaw(phoneRaw || settings.whatsappRaw || DEFAULT_SETTINGS.whatsappRaw);
+    return `https://wa.me/${rawNumber}?text=${text}`;
+  };
+
   const getPhoneHref = () => {
     const rawNumber = formatPhoneRaw(settings.phoneRaw || settings.phone || DEFAULT_SETTINGS.phoneRaw);
     return `tel:+${rawNumber}`;
@@ -88,6 +97,7 @@ export function SiteSettingsProvider({
         settings,
         updateSettingsState,
         getWhatsAppUrl,
+        getAdvisorWhatsAppUrl,
         getPhoneHref,
         getLandlineHref,
         getEmailHref,
